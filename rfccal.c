@@ -689,6 +689,16 @@ int __cal_table (CALD_FUNCTION_MODULE *fce, int oper, char *name, int index)
     return (0);
 }
 
+int __call_with_timeout(RFC_HANDLE handle, rfc_char_t *function, RFC_PARAMETER *exporting, RFC_PARAMETER *importing, RFC_TABLE *tables, rfc_char_t **exception)
+{
+    int rfc_rc = RfcCall(handle, function, exporting, tables);
+    if (rfc_rc == RFC_OK){
+        rfc_rc = RfcReceive(handle, importing, tables, exception);
+    }else{
+        exception = NULL;
+    }
+    return rfc_rc;
+}
 
 int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
 {
@@ -809,7 +819,7 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
 
     if (ret == RFC_OK)
     {
-         rfc_rc = RfcCallReceive (rfc, fce->name, Importing, Exporting, Tables, &fce->exception);
+         rfc_rc = __call_with_timeout(rfc, fce->name, Importing, Exporting, Tables, &fce->exception);
          if (rfc_rc != RFC_OK)
          {
              sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
