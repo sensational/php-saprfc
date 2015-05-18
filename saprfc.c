@@ -468,7 +468,7 @@ PHP_MINFO_FUNCTION(saprfc)
  */
 PHP_FUNCTION(saprfc_open)
 {
-    zval **conn;
+    zval *conn;
     RFC_HANDLE rfc;
     HashTable *hash;
     zval **value_ptr;
@@ -478,12 +478,11 @@ PHP_FUNCTION(saprfc_open)
     char *string_key;
     ulong num_key;
 
-    if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &conn) == FAILURE){
-       WRONG_PARAM_COUNT;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &conn) == FAILURE){
+        RETURN_FALSE;
     }
 
-    convert_to_array_ex(conn);
-    hash = HASH_OF(*conn);
+    hash = Z_ARRVAL_P(conn);
 
     buflen = 0;
     zend_hash_internal_pointer_reset(hash);
@@ -1602,17 +1601,17 @@ PHP_FUNCTION(saprfc_table_rows)
  */
 PHP_FUNCTION(saprfc_call_and_receive)
 {
-    zval **fce;
+    zval *fce;
     FCE_RESOURCE *fce_resource;
-    int type;
     RFC_RC rfc_rc;
 
-    if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &fce) == FAILURE){
-        WRONG_PARAM_COUNT;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &fce) == FAILURE){
+        RETURN_FALSE;
     }
 
-    fce_resource = (FCE_RESOURCE *) zend_list_find (Z_RESVAL_P(*fce),&type);
-    if (fce_resource && type == le_function)
+    ZEND_FETCH_RESOURCE(fce_resource, FCE_RESOURCE*, &fce, -1, PHP_RFC_FUNC_RES_NAME, le_function);
+
+    if (fce_resource)
     {
        CAL_INIT_INTERFACE_EXPORT(fce_resource->fce);
        rfc_rc = CAL_CALL(fce_resource->fce,fce_resource->handle);
@@ -1622,11 +1621,7 @@ PHP_FUNCTION(saprfc_call_and_receive)
        }
        CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
-    else
-    {
-       php_error(E_WARNING, "Invalid resource for function module");
-       RETURN_LONG(-1);
-    }
+
     RETURN_LONG (rfc_rc);
 }
 /* }}} */
