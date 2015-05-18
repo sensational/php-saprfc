@@ -1,0 +1,195 @@
+Installation Instructions for SAPRFC
+------------------------------------
+
+SAPRFC is an extension module for PHP. With SAPRFC is possible
+call an SAP R/3 function modules from PHP scripts. On other side
+you can also call a PHP functions from ABAP. 
+
+More information, API documetation, examples and newest versions
+you can find on http://saprfc.sourceforge.net.
+
+This document doesn't describe how to install PHP, please see
+to the PHP documentation for it (http://www.php.net). 
+
+Please, see to PLATFORM file for supported platform, PHP, RFCSDK library
+and SAP version.
+
+
+Quick info:
+-----------
+
+SAPRFC is distributed under PHP license with source codes in
+tarball saprfc-$VERSION$.tar.gz. 
+
+Under Linux (UNIX) platform two methods for instalation exist:
+
+  a) Rebuild PHP with saprfc extension included
+  b) Build saprfc extension as dynamic module without rebuilding PHP
+ 
+Steps for a)
+
+  Extract source tarball to PHP source tree (under ext/ directory)  
+and rebuild PHP with commands 
+
+  rm ./configure
+  ./buildconf --force
+  ./configure --with-saprfc (+ your configuration directives)
+  make
+
+Note: Because librfc.a for SAP RFC SDK 6.20 is not compatible with
+      glibc 2.3 you must use method b) for installation saprfc 
+      extension on glibc 2.3 based Linux distribution (RH AS 3.0, FC3...).
+
+Steps for b)
+
+  Extract source tarball to some directory and build dynamic module
+ with commands  
+
+  cd <saprfc dir>
+  phpize
+  ./configure
+  make 
+  make install
+
+  Enable saprfc extension editing your php.ini - add line:
+
+ extension=saprfc.so
+
+For Windows platform (NT/2000/XP/2003) you can download binary package 
+saprfc-$VERSION$-$PHP_VERSION$.zip. In this package you  find the 
+file php_saprfc.dll. Copy this file to your extension directory 
+(extension_dir = ) and enable/load saprfc extension in php.ini file 
+(extension=php_saprfc.dll).
+
+Requirements:
+-------------
+
+Under UNIX:
+
+    * PHP sources (http://www.php.net/downloads.php)
+    * php-devel package for installation saprfc as dynamic module
+    * GNU tools (autoconf, automake, flex, libtool, gcc, m4, make)
+    * Non-Unicode SAP RFCSDK 6.20 for your platform (if you are SAP customer
+      you can download it from http://service.sap.com/swdc under 
+      <Support Packages and Patches - My Company's Application Components
+      SAP WEB AS - SAP WEB AS 6.20 - SAP RFC SDK>)
+
+Under Win32:
+  
+    For compilation:
+
+    * PHP sources (http://www.php.net/downloads.php) 
+    * PHP win support files (http://www.php.net/extra/win32build.zip)
+    * Microsoft Visual C 6.0
+    * Non-Unicode SAP RFCSDK 6.20 for your platform (if you are SAP customer
+      you can download it from http://service.sap.com/swdc under 
+      <Support Packages and Patches - My Company's Application Components
+      SAP WEB AS - SAP WEB AS 6.20 - SAP RFC SDK>)
+
+
+    For installation (from binary package):
+
+    * PHP binaries (http://www.php.net/downloads.php) 
+    * librfc32.dll in Windows System directory (or SAPGUI installed) 
+
+Installation steps under UNIX (with rebuilding PHP):
+---------------------------------------------------
+
+Preparation:
+
+     Install SAP RFCSDK to a /usr/sap/rfcsdk directory (or /usr/local/rfcsdk, 
+/opt/rfcsdk). If you use other directory, you must configure php with option
+--with-saprfc=DIR instead of --with-saprfc.
+
+     Extract saprfc  and php sources, for example, to your home
+directory:
+
+     $ cd
+     $ gunzip -c php-x.y.z.tar.gz | tar xf -
+     $ gunzip -c saprfc-$VERSION$.tar.gz | tax xf -
+
+     Install GNU tools, if you haven't installed them.
+
+Compilation:
+
+
+     $ mkdir ~/php-x.y.z/ext/saprfc
+     $ cp ~/saprfc-$VERSION$/* ~/php-x.y.z/ext/saprfc
+     $ cd ~/php-x.y.z
+     $ rm ./configure
+     $ ./buildconf
+ --force
+     $ ./configure --your_options,    (see PHP install documentation, how to build PHP)
+                   --with-saprfc  
+     $ make  
+     $ make install
+
+
+Installation steps under UNIX (dynamic module):
+-----------------------------------------------
+
+Preparation:
+
+     Extract SAP RFCSDK to the /usr/sap/rfcsdk directory. Check if you have
+php-devel package installed on your system.
+
+     Extract saprfc sources, for example, to your home
+directory:
+
+     $ cd
+     $ gunzip -c saprfc-$VERSION$.tar.gz | tax xf -
+
+     Install GNU tools, if you haven't installed them.
+
+Compilation:
+
+     $ cd saprfc-$VERSION$
+     $ phpize
+     $ ./configure
+     $ make 
+     $ make install
+
+
+Installation steps under Win32:
+------------------------------
+
+Installation:
+
+      1) Extract zip file saprfc-$VERSION$-$PHP_VERSION$.zip
+      2) Copy php-saprfc.dll to your extensions directory (e.g. C:\PHP\extensions)
+      3) Edit php.ini file (in windows system dircetory, e.g. C:\WINNT, C:\WINDOWS)
+         and add line: 'extension=php_saprfc.dll'
+      4) Copy librfc32.dll (from SAPGUI install CD) to the windows system
+         directory or simple install SAPGUI on your machine.
+
+Compilation:
+
+      1) Extract php sources to C:\PHP-x.y.z
+      2) Extract php win support files to C:\PHP-x.y.z\win32
+      3) Install RFCSDK to C:\PHP-x.y.z\rfcsdk
+      4) Copy SAPRFC sources to C:\PHP-x.y.z\ext\saprfc
+      5) Copy php4ts.lib or php5ts.lib (from PHP binaries) to C:\PHP-x.y.z\win32
+      6) For PHP5 copy saprfc.dsp5 to saprfc.dsp
+      6) Open project C:\PHP-x.y.z\ext\saprfc\saprfc.dsp in Microsoft Visual C++ 6.0
+      7) Under Tools|Option|Directory set path for Include files and for Library files
+         (C:\PHP-x.y.z\win32\include; C:\PHP-x.y.z\rfcsdk\include;
+          C:\PHP-x.y.z\win32\lib; C:\PHP-x.y.z\rfcsdk\lib)
+      8) Set active configuration to "saprfc - Windows_TS" (under Build menu)
+      9) Build php_saprfc.dll.
+      10) Compiled DLL you find in C:\PHP-x.y.z\Release_TS directory
+
+After installation:
+-------------------
+
+  You can use saprfc_test.php script to test if saprfc extension is activate
+  and functional. Copy this script to your www directory. If you will see
+  login page to SAP R/3, you have extension successfully installed.
+  
+  If you want to reduce a little bit the complexity of the rfc-library for
+  programming, you can use the saprfc class (in saprfc.php), which provides an easy to use 
+  programming interface to most of the functionality of the saprfc-extension.
+  Calling functions in sap with the saprfc class is straightforward and easy,
+  see example in file "example_userlist.php" to retrieve the user-list of an 
+  sap-system. If you want to easily execute programs or want to use the rfc-server
+  capabilities, you will have to wait for a new saprfc class version.
+        

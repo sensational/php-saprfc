@@ -1,0 +1,6 @@
+LTLIBRARY_NAME        = libsaprfc.la
+LTLIBRARY_SOURCES     = saprfc.c rfccal.c
+LTLIBRARY_SHARED_NAME = saprfc.la
+LTLIBRARY_SHARED_LIBADD  = $(SAPRFC_SHARED_LIBADD)
+
+include $(top_srcdir)/build/dynlib.mk

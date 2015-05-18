@@ -1,0 +1,42 @@
+Written by Gerhard Brehm <gerhard.brehm@vatew.de>:
+---------------------------------------------------
+
+I want to give a few hints to make compile and test a little smoother ,
+especially to compile on a linux box :
+
+If you drive saprfc on a standalone linux webserver , that means without a
+SAP installation ( either gui or Server) on it , one will need the following
+prerequisites :
+
+- Enter at least the services 
+	sapdp00		3200/tcp
+	sapgw00		3300/tcp
+	sapgw00s		4800/tcp
+	sapms<SID>		3600/tcp 
+to the file /etc/services, with <SID> = SAP System ID to which you want to
+connect. If you  use a systemnumber different from 00 replace the 00 above
+with your systemnumber.
+
+     Install SAP RFCSDK to a /usr/sap/rfcsdk directory (or
+/usr/local/rfcsdk, /opt/rfcsdk). If you use other directory, you must configure 
+php with option --with-saprfc=DIR instead of --with-saprfc. 
+
+Probably one will create the SAP RFCSDK DIR manually , in this case one will
+have to create the directories DIR/include and DIR/lib too. 
+Copy the saprfc.h, sapitab.h, rfcsi.h files to the directory DIR/include ,
+one can use the  files from the windows gui 
+( path = <CD>/gui/Win32/sapgui/rfcsdk/include on linux too.
+Get the librfc from SAP , it is found on the sapnet or on sapserv3 in the
+kernel path for the linux_32 platform, unpack it and move to DIR/lib.
+
+After installation : 
+
+Copy the file sapmsg.ini to your webserver directory where your saprfc.php
+resides.
+This file is found on your client eg. under windows in the windows
+directory.
+If this file is not there you can use the saplogon.ini file with the name
+sapmsg.ini.
+
+Test : One MUST specify Applicationserver, systemnumber,client, user,
+password, systemname, language and  Codepage .

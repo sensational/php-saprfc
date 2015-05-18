@@ -1,0 +1,32 @@
+dnl $Id: config.m4-4.0.5,v 1.1 2001/07/03 13:02:48 koucky Exp $
+dnl config.m4 for extension saprfc
+dnl don't forget to call PHP_EXTENSION(saprfc)
+
+PHP_ARG_WITH(saprfc, for saprfc support,
+[  --with-saprfc[=DIR]     Include saprfc support. DIR is the SAP RFCSDK 
+                          install directory.])
+
+if test "$PHP_SAPRFC" != "no"; then
+  for i in /usr/sap/rfcsdk /usr/local/rfcsdk /opt/rfcsdk $PHP_SAPRFC; do
+    if test -f $i/include/saprfc.h; then
+      SAPRFC_DIR=$i
+    fi
+  done
+  
+  if test -z "$SAPRFC_DIR"; then
+     AC_MSG_ERROR(Please install SAP RFCSDK - I cannot find saprfc.h)
+  fi      
+
+  AC_ADD_INCLUDE($SAPRFC_DIR/include)
+  AC_ADD_LIBRARY_WITH_PATH(rfc, $SAPRFC_DIR/lib, SAPRFC_SHARED_LIBADD)
+  AC_CANONICAL_HOST
+  case "$host" in
+    *-hp-*)
+        AC_ADD_LIBRARY_WITH_PATH(cl, $SAPRFC_DIR/lib, SAPRFC_SHARED_LIBADD)
+        ;;
+  esac	
+
+  PHP_SUBST(SAPRFC_SHARED_LIBADD)
+
+  PHP_EXTENSION(saprfc, $ext_shared)
+fi

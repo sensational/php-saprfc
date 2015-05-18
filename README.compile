@@ -1,0 +1,11 @@
+For compilation saprfc.dll under Windows for PHP 5 following modification 
+PHP source is needed:
+
+In the file Zend\zend_config.w32.h comment following lines:
+
+  #include <winsock2.h>
+  #include <windows.h>
+
+In the file win32\time.h add line:
+
+  #include "winsock2.h"

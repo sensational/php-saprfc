@@ -1,0 +1,1305 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <TITLE>SAPRFC functions</TITLE>
+</HEAD>
+<BODY CLASS="reference" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#840084" ALINK="#0000FF" >
+<H1> SAPRFC functions</H1>
+<P>
+        SAPRFC use RFC (remote call function) API to make call a function module in SAP R/3.
+	You can also write RFC server program in PHP and call PHP functions from SAP R/3.	
+	Function modules are defined in transaction SE37 (Function Builder). Each function
+	module has interface defined. The interface definition consist from import 
+	parameters (input), export 	parameters (output), internal tables (input/output) 
+	and exceptions. The function module have to set RFC support enable to be able called by RFC
+	from a remote system. More information about function modules and programming concepts
+	in SAP R/3 you can find on <a href="help.sap.com">http://help.sap.com</a> under the BC 
+	manuals.
+<P>
+    You need to compile PHP with the --with-saprfc parameter to enable this extension. You also
+	need SAP RFCSDK (if you are SAP customer, you can find it on the "Presentation CD").
+<DL>
+<DT>
+  <B>Table of Contents</B><br><br>
+</DT
+<DT>
+   <A HREF="#function.saprfc-attributes.html">saprfc_attributes</A> 
+       — Gets some information about RFC connection
+</DT>
+<DT>
+   <A HREF="#function.saprfc-call-and-receive.html">saprfc_call_and_receive</A> 
+       — Does a remote  call of an function module
+</DT>
+<DT><A HREF="#function.saprfc-close.html" >saprfc_close</A> 
+       — Closes a RFC connection
+</DT>
+<DT><A HREF="#function.saprfc-error.html">saprfc_error</A> 
+       — Gets the last RFC error message
+</DT>
+<DT><A HREF="#function.saprfc-exception.html">saprfc_exception</A> 
+       — Gets a exception string for last call of an function module
+</DT>
+<DT><A HREF="#function.saprfc-export.html">saprfc_export</A> 
+       — Gets a value of a export parameter
+</DT>
+<DT><A HREF="#function.saprfc-function-debug-info.html">saprfc_function_debug info</A> 
+       — Prinst an interface definition of a function module and content of internal buffers
+</DT>
+<DT><A HREF="#function.saprfc-function-define.html">saprfc_function_define</A> 
+       — Defines an interface of a function module
+</DT>
+<DT><A HREF="#function.saprfc-function-discover.html">saprfc_function_discover</A> 
+       — Discovers an interface of a function module
+</DT>
+<DT><A HREF="#function.saprfc-function-free.html">saprfc_function_free</A>
+       —  Frees a function module resources
+</DT>
+<DT><A HREF="#function.saprfc-function-interface.html">saprfc_function_interface</A> 
+       — Gets an interface definition of a function module
+</DT>
+<DT><A HREF="#function.saprfc-function-name.html">saprfc_function_name</A> 
+       — Gets the name of function module
+</DT>
+<DT><A HREF="#function.saprfc-import.html" >saprfc_import</A>
+       — Sets a value of a import parameter
+</DT>
+<DT><A HREF="#function.saprfc-server-accept.html">saprfc_server_accept</A> 
+       — Accepts an incoming RFC connection
+</DT>
+<DT><A HREF="#function.saprfc-server-export.html">saprfc_server_export</A> 
+       — Sets a value of a export parameter
+</DT>
+<DT><A HREF="#function.saprfc-server-import.html" >saprfc_server_import</A>
+       — Gets a value of a import parameter
+</DT>
+<DT><A HREF="#function.saprfc-server-dispatch.html" >saprfc_server_dispatch</A>
+       — Receives a single RFC request and call a corresponding PHP function 
+</DT>
+<DT><A HREF="#function.saprfc-server-register-check.html" >saprfc_server_register_check</A>
+       — Check for registered RFC server at a SAP gateway 
+</DT>
+<DT><A HREF="#function.saprfc-server-register-cancel.html" >saprfc_server_register_cancel</A>
+       — Cancel all registered RFC servers at a SAP gateway 
+</DT>
+<DT><A HREF="#function.saprfc-set-trace.html" >saprfc_set_trace</A>
+       — Activate/Deactivate the RFC trace 
+</DT>
+<DT><A HREF="#function.saprfc-table-append.html">saprfc_table_append</A> 
+       — Appends a line at end of internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-init.html">saprfc_table_init</A>
+       — Init a internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-insert.html">saprfc_table_insert</A> 
+       — Inserts a line into an internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-modify.html">saprfc_table_modify</A> 
+       — Modify a line of an internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-read.html">saprfc_table_read</A> 
+       — Reads a line from an internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-remove.html">saprfc_table_remove</A>
+       — Removes a line of an internal table
+</DT>
+<DT><A HREF="#function.saprfc-table-rows.html">saprfc_table_rows</A> 
+       — Gets a number of lines an internal table
+</DT>
+<DT><A HREF="#function.saprfc-trfc-call.html">saprfc_trfc_call</A> 
+       — Calls a function module in R/3 indirectly (tRFC)
+</DT>
+<DT><A HREF="#function.saprfc-trfc-dispatch.html">saprfc_trfc_dispatch</A> 
+       — Receives a single RFC request and call a corresponding PHP function (tRFC)
+</DT>
+<DT><A HREF="#function.saprfc-trfc-install.html">saprfc_trfc_install</A> 
+       — Installs functions to control transactional behaviour (tRFC)
+</DT>
+<DT><A HREF="#function.saprfc-trfc-tid.html">saprfc_trfc_tid</A> 
+       — Gets a transaction-ID for a following call of a function module using tRFC
+</DT>
+<DT><A HREF="#function.saprfc-open.html">saprfc_open</A> 
+       — Open a RFC connection to  SAP R/3
+</DT>
+<DT><A HREF="#function.saprfc-optional.html">saprfc_optional</A> 
+       — Set a import parameter as optional
+</DT>
+<DT><A HREF="#function.saprfc-set-code-page.html">saprfc_set_code_page</A> 
+       — Set SAP codepage for a RFC connection
+</DT>
+<DT><A HREF="#function.saprfc-allow-start-program.html">saprfc_allow_start_program</A> 
+       — Explicitly allows the RFC library to start the programs
+</DT>
+<DT><A HREF="#function.saprfc-get-ticket.html">saprfc_get_ticket</A> 
+       — Retrieve backend generated cookie version 2 after calling saprfc_open with flag GETSSO2
+</DT>
+</DL>
+
+
+<H1><A NAME="#function.saprfc-attributes.html">saprfc_attributes</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_attributes &nbsp;--&nbsp;
+          Get some information about RFC connection
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> array <B> saprfc_attributes</B> (int rfc)</CODE>
+        <P>
+     </DIV>
+     <P>
+	    Return <i>array</i> with some information about an RFC connection, 
+		such as host name, service of the connected application server and 
+		SAP gateway, the R/3 system number, client, user and language.
+        <p>
+		It should be called after saprfc_call_and_receive() or 
+		saprfc_server_dispatch().
+        <p>
+        <table>
+		  <tr><td>$attr[dest]</td><td>field RFC destination</td></tr>
+		  <tr><td>$attr[own_host]</td><td>Own host name</td></tr>
+  	      <tr><td>$attr[partner_host]</td><td>Partner host name</td></tr>
+  	      <tr><td>$attr[systnr]</td><td>R/3 system number</td></tr>
+  	      <tr><td>$attr[sysid]</td><td>R/3 system name</td></tr>
+  	      <tr><td>$attr[client]</td><td>Client</td></tr>
+  	      <tr><td>$attr[user]</td><td>User</td></tr>
+  	      <tr><td>$attr[language]</td><td>Language</td></tr>
+  	      <tr><td>$attr[trace]</td><td>ON/OFF: 'X'/' '</td></tr>
+  	      <tr><td>$attr[ISO_language]</td><td>2-byte ISO-Language</td></tr>
+  	      <tr><td>$attr[own_codepage]</td><td>Own code page</td></tr>
+  	      <tr><td>$attr[partner_codepage]</td><td>Partner code page</td></tr>
+  	      <tr><td>$attr[rfc_role]</td><td>C/S: RFC Client / RFC Server</td></tr>
+  	      <tr><td>$attr[own_type]</td><td>2/3/E/R: R/2,R/3,Ext,Reg.Ext</td></tr>
+  	      <tr><td>$attr[own_rel]</td><td>My system release</td></tr>
+  	      <tr><td>$attr[partner_type]</td><td>2/3/E/R: R/2,R/3,Ext,Reg.Ext</td></tr>
+  	      <tr><td>$attr[partner_rel]</td><td>Partner system release</td></tr>
+  	      <tr><td>$attr[kernel_rel]</td><td>Partner kernel release</td></tr>
+  	      <tr><td>$attr[CPIC_convid]</td><td> CPI-C Conversation ID</td></tr>
+       </table>			  
+  </DIV>
+
+
+<H1><A NAME="#function.saprfc-call-and-receive.html">saprfc_call_and_receive</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_call_and_receive &nbsp;--&nbsp;
+          Do a remote  call of an function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_call_and_receive</B> (int fce)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Call a function module defined by function handle <i>fce</i>.
+		Return SAPRFC_OK if the call was successfully completed.
+		<p>
+		<b>List of SAP RFC return codes:</b>
+		<p>
+        <table>
+		  <tr><td>SAPRFC_OK</td><td>O.K.</td></tr>
+		  <tr><td>SAPRFC_FAILURE</td><td>Error occurred</td></tr>
+  	      <tr><td>SAPRFC_EXCEPTION</td><td>Exception raised</td></tr>
+  	      <tr><td>SAPRFC_SYS_EXCEPTION</td><td>System exception raised, connection closed</td></tr>
+  	      <tr><td>SAPRFC_CALL</td><td>Call received</td></tr>
+  	      <tr><td>SAPRFC_INTERNAL_COM</td><td>Internal communication, repeat (internal use only)</td></tr>
+  	      <tr><td>SAPRFC_CLOSED</td><td>Connection closed by the other side</td></tr>
+  	      <tr><td>SAPRFC_RETRY</td><td>No data yet</td></tr>
+  	      <tr><td>SAPRFC_NO_TID</td><td>No Transaction ID available</td></tr>
+  	      <tr><td>SAPRFC_EXECUTED</td><td>Function already executed</td></tr>
+  	      <tr><td>SAPRFC_SYNCHRONIZE</td><td>Synchronous Call in Progress</td></tr>
+  	      <tr><td>SAPRFC_MEMORY_INSUFFICIENT</td><td>Memory insufficient</td></tr>
+  	      <tr><td>SAPRFC_VERSION_MISMATCH</td><td>Version mismatch</td></tr>
+  	      <tr><td>SAPRFC_NOT_FOUND</td><td>Function not found (internal use only)</td></tr>
+  	      <tr><td>SAPRFC_CALL_NOT_SUPPORTED</td><td>This call is not supported</td></tr>
+  	      <tr><td>SAPRFC_NOT_OWNER</td><td>Caller does not own the specified handle</td></tr>
+  	      <tr><td>SAPRFC_NOT_INITIALIZED</td><td>RFC not yet initialized.</td></tr>
+  	      <tr><td>SAPRFC_SYSTEM_CALLED</td><td>A system call such as RFC_PING for connectiontest is executed</td></tr>
+  	      <tr><td>SAPRFC_INVALID_HANDLE</td><td>An invalid handle was passed to an API call.</td></tr>
+  	      <tr><td>SAPRFC_INVALID_PARAMETER</td><td>An invalid parameter was passed to an API call.</td></tr>
+   	      <tr><td>SAPRFC_CANCELED</td><td>Internal use only</td></tr>
+       </table>			  
+		
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Call ABAP function module</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+$rfc_rc = saprfc_call_and_receive ($fce);
+switch ($rfc_rc) {
+   case SAPRFC_OK        : break;
+   case SAPRFC_EXCEPTION : echo ("Exception raised:".saprfc_exception($fce));
+                           // handle exception
+   default:              : echo ("RFC error ".saprfc_error());
+                           exit;  
+}
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+     See also: <A HREF="#function.saprfc-exception.html"><B>saprfc_exception()</B></A>,
+               <A HREF="#function.saprfc-error.html"><B>saprfc_error()</B></A> 
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-close.html">saprfc_close</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_close &nbsp;--&nbsp;
+          Close a RFC connection
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_close</B> (int rfc)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Close a RFC connection.
+     <P>
+	     See also: <A HREF="#function.saprfc-open.html"><B>saprfc_open()</B></A>,
+                   <A HREF="#function.saprfc-server_accept.html"><B>saprfc_server_accept()</B></A> 
+  </DIV>
+
+ <H1><A NAME="function.saprfc-error.html">saprfc_error</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_error &nbsp;--&nbsp;
+          Get a last RFC error message
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> string <B> saprfc_error</B> ()</CODE>
+        <P>
+     </DIV>
+     <P>
+	    Get string with more information on RFC errors that have occurred.
+  </DIV>
+
+<H1><A NAME="function.saprfc-exception.html">saprfc_exception</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_exception &nbsp;--&nbsp;
+          Get a exception string for last call of an function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> string <B> saprfc_exception</B> (int fce)</CODE>
+        <P>
+     </DIV>
+     <P>
+	    Get a exception string for last call of an function module.
+     <P>  
+     See also: <A HREF="#function.saprfc-call-and-receive.html"><B>saprfc_call_and_receive()</B></A>
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-export.html">saprfc_export</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_export &nbsp;--&nbsp;
+          Get a value of a export parameter
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> mixed <B> saprfc_export</B> (int fce, string name)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Return value of a export parameter <i>name</i> for function handle <i>fce</i>.
+		
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Set of the import parameter</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+   $NAME = saprfc_export ($fce,"NAME");
+   echo ($NAME);
+   $FULLNAME = saprfc_export ($fce,"FULLNAME");
+   echo ($FULLNAME[FIRST]." ".$FULLNAME[LAST]);
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+     See also: <A HREF="#function.saprfc-import.html"><B>saprfc_import()</B></A>,
+               <A HREF="#function.saprfc-server-import.html"><B>saprfc_server_import()</B></A>,
+  			   <A HREF="#function.saprfc-server-export.html"><B>saprfc_server_export()</B></A>
+  </DIV>
+
+<H1><A NAME="function.saprfc-function-debug-info.html">saprfc_function_debug info</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_function_debug info &nbsp;--&nbsp;
+          Print an interface definition of a function module and content of internal buffers
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> void <B> saprfc_function_debug_info</B> (int fce, [bool only_values])</CODE>
+        <P>
+     </DIV>
+     <P>
+        Show debug information for the function handle <i>fce</i>. If <i>only_values</i> is true
+        don't show interface definition, show values of parameters and values of internal tables only.
+  </DIV>
+
+<H1><A NAME="function.saprfc-function-define.html">saprfc_function_define</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+    saprfc_function_define &nbsp;--&nbsp;
+         Define an interface of a function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_function_define</B> (int rfc, string function_module, array def, [bool not_trim = false])</CODE>
+        <P>
+     </DIV>
+     <P>
+         Define interface of the <i>function_module</i>. The definition is in array <i>def</i>.
+         Return function handle on success or false on failure. You can use 
+         <i>saprfc_test.php</i> script to get definition array for selected function module.
+		 <P>
+		 For definition of PHP server function  can be <i>rfc</i> parameter set to 0.
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1: Interface definition for function module RFC_READ_REPORT</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+          $def = array (
+  			 array (
+  				 "name"=>"SYSTEM",
+  				 "type"=>"EXPORT",
+  				 "optional"=>"0",
+  				 "def"=> array (
+  					 array ("name"=>"","abap"=>"C","len"=>8,"dec"=>0,"offset"=>0)
+  					)
+  			),
+  			 array (
+  				 "name"=>"TRDIR",
+  				 "type"=>"EXPORT",
+  				 "optional"=>"0",
+  				 "def"=> array (
+  					 array ("name"=>"NAME","abap"=>"C","len"=>40,"dec"=>0,"offset"=>0),
+  					 array ("name"=>"SQLX","abap"=>"C","len"=>1,"dec"=>0,"offset"=>40),
+  					 array ("name"=>"EDTX","abap"=>"C","len"=>1,"dec"=>0,"offset"=>41),
+  					 array ("name"=>"VARCL","abap"=>"C","len"=>1,"dec"=>0,"offset"=>42),
+  					 array ("name"=>"DBAPL","abap"=>"C","len"=>1,"dec"=>0,"offset"=>43),
+  					 array ("name"=>"DBNA","abap"=>"C","len"=>2,"dec"=>0,"offset"=>44),
+  					 array ("name"=>"CLAS","abap"=>"C","len"=>4,"dec"=>0,"offset"=>46),
+  					 array ("name"=>"TYPE","abap"=>"C","len"=>3,"dec"=>0,"offset"=>50),
+  					 array ("name"=>"OCCURS","abap"=>"C","len"=>1,"dec"=>0,"offset"=>53),
+  					 array ("name"=>"SUBC","abap"=>"C","len"=>1,"dec"=>0,"offset"=>54),
+  					 array ("name"=>"APPL","abap"=>"C","len"=>1,"dec"=>0,"offset"=>55),
+  					 array ("name"=>"SECU","abap"=>"C","len"=>8,"dec"=>0,"offset"=>56),
+  					 array ("name"=>"CNAM","abap"=>"C","len"=>12,"dec"=>0,"offset"=>64),
+  					 array ("name"=>"CDAT","abap"=>"D","len"=>8,"dec"=>0,"offset"=>76),
+  					 array ("name"=>"UNAM","abap"=>"C","len"=>12,"dec"=>0,"offset"=>84),
+  					 array ("name"=>"UDAT","abap"=>"D","len"=>8,"dec"=>0,"offset"=>96),
+  					 array ("name"=>"VERN","abap"=>"C","len"=>6,"dec"=>0,"offset"=>104),
+  					 array ("name"=>"LEVL","abap"=>"C","len"=>4,"dec"=>0,"offset"=>110),
+  					 array ("name"=>"RSTAT","abap"=>"C","len"=>1,"dec"=>0,"offset"=>114),
+  					 array ("name"=>"RMAND","abap"=>"C","len"=>3,"dec"=>0,"offset"=>115),
+  					 array ("name"=>"RLOAD","abap"=>"C","len"=>1,"dec"=>0,"offset"=>118),
+  					 array ("name"=>"FIXPT","abap"=>"C","len"=>1,"dec"=>0,"offset"=>119),
+  					 array ("name"=>"SSET","abap"=>"C","len"=>1,"dec"=>0,"offset"=>120),
+  					 array ("name"=>"SDATE","abap"=>"D","len"=>8,"dec"=>0,"offset"=>121),
+  					 array ("name"=>"STIME","abap"=>"C","len"=>6,"dec"=>0,"offset"=>129),
+  					 array ("name"=>"IDATE","abap"=>"D","len"=>8,"dec"=>0,"offset"=>135),
+  					 array ("name"=>"ITIME","abap"=>"C","len"=>6,"dec"=>0,"offset"=>143),
+  					 array ("name"=>"LDBNAME","abap"=>"C","len"=>20,"dec"=>0,"offset"=>149),
+  					 array ("name"=>"UCCHECK","abap"=>"C","len"=>1,"dec"=>0,"offset"=>169)
+  					)
+  			),
+  			 array (
+  				 "name"=>"PROGRAM",
+  				 "type"=>"IMPORT",
+  				 "optional"=>"0",
+  				 "def"=> array (
+  					 array ("name"=>"","abap"=>"C","len"=>40,"dec"=>0,"offset"=>0)
+  					)
+  			),
+  			 array (
+  				 "name"=>"QTAB",
+  				 "type"=>"TABLE",
+  				 "optional"=>"0",
+  				 "def"=> array (
+  					 array ("name"=>"LINE","abap"=>"C","len"=>72,"dec"=>0,"offset"=>0)
+  					)
+  			)
+  		); 
+
+  	$fce = saprfc_function_define($rfc,"RFC_READ_REPORT",$def);
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+     See also: <A HREF="#saprfc-function-discover.html"><B>saprfc_function_discover()</B></A>,
+              <A HREF="#saprfc-function-interface.html"><B>saprfc_function_interface()</B></A>,
+			  <A HREF="#saprfc-function-debug-info.html"><B>saprfc_function_debug_info()</B></A>,
+			  <A HREF="#saprfc-function-free.html"><B>saprfc_function_free()</B></A> 
+			  
+  </DIV>
+
+
+<H1><A NAME="function.saprfc-function-discover.html">saprfc_function_discover</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_function_discover &nbsp;--&nbsp;
+          Discover an interface of a function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_function_discover</B> (int rfc, string function_module, [bool not_trim = false])</CODE>
+        <P>
+     </DIV>
+     <P>
+         Discover an interface of the <i> function_module</i>. Return function handle on
+         success or false on failure. Use function modules RFC_GET_FUNCTION_INTERFACE_P
+         and RFC_GET_STRUCTURE_DEFINITION_P in connected SAP R/3  to get information 
+         about the interface. 
+
+     <P>
+     See also: <A HREF="#saprfc-function-define.html"><B>saprfc_function_define()</B></A>,
+              <A HREF="#saprfc-function-interface.html"><B>saprfc_function_interface()</B></A>,
+			  <A HREF="#saprfc-function-debug-info.html"><B>saprfc_function_debug_info()</B></A>,
+			  <A HREF="#saprfc-function-free.html"><B>saprfc_function_free()</B></A> 
+			  
+  </DIV>
+
+  
+<H1><A NAME="function.saprfc-function-free.html">saprfc_function_free</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_function_free &nbsp;--&nbsp;
+          Free a function module resources
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B>saprfc_function_free</B> (int fce)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Free allocated resources for given function handle <i>fce</i>.  
+	</DIV>
+
+<H1><A NAME="function.saprfc-function-interface.html">saprfc_function_interface</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_function_interface &nbsp;--&nbsp;
+          Get an interface definition of a function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> array <B> saprfc_function_interface</B> (int fce)</CODE>
+        <P>
+     </DIV>
+     <P>
+         Return interface definition for the function handle <i>fce</i> on success or false on
+         failure. The definition has same format as in the <i>saprfc_function_define()</i>.
+
+     <P>
+     See also: <A HREF="#saprfc-function-define.html"><B>saprfc_function_define()</B></A>,
+              <A HREF="#saprfc-function-discover.html"><B>saprfc_function_discover()</B></A>
+			  
+  </DIV>
+
+  <H1><A NAME="function.saprfc-function-name.html">saprfc_function_name</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_function_name &nbsp;--&nbsp;
+          Gets the name of function module
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> string <B> saprfc_function_name</B> (int fce)</CODE>
+        <P>
+     </DIV>
+     <P>
+         Return name of the function module for function handle <i>fce</i> on success or false on
+         failure. 
+  </DIV>
+
+<H1><A NAME="function.saprfc-import.html">saprfc_import</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_import &nbsp;--&nbsp;
+          Set a value of a import parameter
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_import</B> (int fce, string name, mixed value)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Set a value of the import parameter <i>name</i>. Return true on success or false on failure.
+        The <i>value</i> can be single (string, number....) or structure (hash array - key=name of 
+        structure item).
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Set of the import parameter </B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+   saprfc_import ($fce,"NAME","Smith");
+   saprfc_import ($fce,"FULLNAME", array ("FIRST"=>"John","LAST"=>"Smith"));
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+     See also: <A HREF="#function.saprfc-export.html"><B>saprfc_export()</B></A>,
+               <A HREF="#function.saprfc-server-import.html"><B>saprfc_server_import()</B></A>,
+  			   <A HREF="#function.saprfc-server-export.html"><B>saprfc_server_export()</B></A>
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-server-accept.html">saprfc_server_accept</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_accept &nbsp;--&nbsp;
+          Accept an incoming RFC connection
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_server_accept</B> (mixed args)</CODE>
+        <P>
+     </DIV>
+     <P>
+	    Accept an incoming RFC connection from SAP gateway and return RFC handle on success
+		or false on failure.
+	 <p>
+	    <i>Args</i> parameter is used for registration on SAP Gateway (transaction SM59).
+		The value of parameter can be <i>$argv</i> array or a command line string:
+
+      <p>  
+        <table>
+		  <tr><td>– a</td><td><i>program ID</i> e.g. own_host_name.program_name</td></tr>
+		  <tr><td>– g</td><td><i>host name of the SAP gateway</i></td></tr>
+		  <tr><td>– x</td><td><i><i>service of the SAP gateway</i> e.g. sapgw00</td></tr>
+		  <tr><td>– t</td><td><i>Use RFC-trace</i></td></tr>
+       </table>			  
+       <p>
+	   Note: The function has different behaviour under Windows and Unix. While under Windows 
+	   return to caller immediately, under Unix after receive first RFC call. This is behaviour
+	   of function RfcAccept() (SAP RFCSDK).    
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Checking Constants</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+$rfc = saprfc_server_accept ("-a phpgw -g server -x sapgw30");
+// or
+// $rfc = saprfc_server_accept ($argv);
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+
+     See also: <A HREF="#function.saprfc_server_dispatch.html"><B>saprfc_server_dispatch()</B></A>
+ 
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-server-export.html">saprfc_server_export</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_export &nbsp;--&nbsp;
+          Set a value of a export parameter
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_server_export</B> (int fce, string name, mixed value)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Set a value of the export parameter <i>name</i>. Return true on success or false on failure.
+        <P>
+     See also: <A HREF="#function.saprfc-export.html"><B>saprfc_export()</B></A>,
+               <A HREF="#function.saprfc-import.html"><B>saprfc_import()</B></A>,
+  			   <A HREF="#function.saprfc-server-export.html"><B>saprfc_server_export()</B></A>
+			  
+  </DIV>
+  
+<H1><A NAME="function.saprfc-server-import.html">saprfc_server_import</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_import &nbsp;--&nbsp;
+          Get a value of a import parameter
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> mixed <B> saprfc_server_import</B> (int fce, string name)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Return value of a import parameter <i>name</i> for function handle <i>fce</i>.
+     See also: <A HREF="#function.saprfc-import.html"><B>saprfc_import()</B></A>,
+               <A HREF="#function.saprfc-server-import.html"><B>saprfc_export()</B></A>,
+  			   <A HREF="#function.saprfc-server-export.html"><B>saprfc_server_export()</B></A>
+  </DIV>
+  
+<H1><A NAME="function.saprfc-server-dispatch.html">saprfc_server_dispatch</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_dispatch &nbsp;--&nbsp;
+          Receive a single RFC request and call a corresponding PHP function
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_server_dispatch</B> (int rfc, array list [, int timeout])</CODE>
+        <P>
+     </DIV>
+     <P>
+        Function waits for incoming a rfc request (forever or period defined by <i>timeout</i> 
+		parameter in seconds), than calls a corresponding  PHP function.
+		PHP server functions are defined in array <i>list</i>, key is function name (upper case)
+		and value is function handle.
+		
+		Return SAPRFC_OK on success, SAPRFC_RETRY on timeout expire, -1 if call PHP server function
+		failed or other error code 	(see<i> saprfc_call_and_reveive()</i> ).
+		
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Implementation of server PHP function RFC_READ_REPORT()</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+
+function RFC_READ_REPORT ($fce)
+{ 
+   $PROGRAM = saprfc_server_import ($fce,"PROGRAM");
+   if ($PROGRAM =="") return ("EMPTY");  // raise exception EMPTY
+   $list = file ($PROGRAM);
+   saprfc_table_init ($fce,"QTAB");
+   for ($i=0; $i&lt;count ($list); $i++) 
+       saprfc_table_append ($fce,"QTAB",array ("LINE"=>$list[$i]));
+   saprfc_server_export ($fce,"SYSTEM","PHP");	    
+   return;
+}
+
+$DEF_RFC_READ_REPORT = array (....) // see to saprfc_function_define() example
+
+$GLOBAL_FCE_LIST[RFC_READ_REPORT] = saprfc_function_define (0,"RFC_READ_REPORT",$DEF_RFC_READ_REPORT);
+
+$rfc = saprfc_server_accept ($argv);
+$rfc_rc = saprfc_server_dispatch ($rfc,$GLOBAL_FCE_LIST);
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+     See also: <A HREF="#function.saprfce-function-define.html"><B>saprfc_function_define()</B></A>,
+               <A HREF="#function.saprfce-server-accept.html"><B>saprfc_server_accept()</B></A>, 
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-server-register-check.html">saprfc_server_register_check</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_register_check &nbsp;--&nbsp;
+          Check for registered RFC server at a SAP gateway
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> array <B>saprfc_server_register_check</B> (string tpid, string gwhost, string gwservice)</CODE>
+        <P>
+		     An RFC program can use this call to check whether and how
+             many RFC server programs are registered at a SAP gateway with a defined
+             program ID (<i>tpid</i>). Values are returned in the <i>array ("ntotal"=>?,
+			 "ninit"=>?,"nready"=>?,"nbusy"=>? )</i> <br>
+
+             An RFC server program which registers at a SAP gateway and then waits for
+			 RFC requests from any R/2 or R/3 or another external program can have
+             one of the following 3 states:<br>
+
+			 <b>INIT:</b>  RFC server is only registered at the SAP gateway, it doesn't wait
+                           at this moment for RFC request. An RFC server enters in this state
+                           after <i> saprfc_server_accept() </i> .<br>
+
+			<b>READY:</b> RFC server enters in this state after <i> saprfc_server_dispatch(),
+       					  saprfc_trfc_dispatch() </i>;
+       					  It is now ready to process incoming RFC requests.<br> 
+
+			<b>BUSY: </b> RFC server is processing an RFC request and is not available
+       					for other ones.
+
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfc-server-register-cancel.html"><B>saprfc_server_register_cancel()</B></A>
+  </DIV>
+  
+<H1><A NAME="function.saprfc-server-register-cancel.html">saprfc_server_register_cancel</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_server_register_cancel &nbsp;--&nbsp;
+          Cancel all registered RFC servers at a SAP gateway
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> array <B>saprfc_server_register_cancel</B> (string tpid, string gwhost, string gwservice)</CODE>
+        <P>
+     </DIV>
+     <P>
+	      An RFC program can use this call to cancel all registered RFC servers
+		  at a SAP gateway with a defined program ID (<i>tpid</i>). <br>
+
+		  Pay attention that RFC servers in BUSY state cannot be canceled.
+		  In this case you will have a difference between the output parameters
+		  <i>$array[ntotal]</i> and <i>$array[ncancel]</i> returned by this call.
+
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfc-server-register-check.html"><B>saprfc_server_register_check()</B></A>
+  </DIV>
+  
+<H1><A NAME="function.saprfc-set-trace.html">saprfc_set_trace</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_set_trace &nbsp;--&nbsp;
+          Activate/Deactivate the RFC trace
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> void <B>saprfc_set_trace</B> (int rfc, bool level)</CODE>
+        <P>
+			Activates the RFC trace (<i>level</i> = true) for a specified connection (valid
+			<i>rfc</i> handle) or for all RFC connections (<i>rfc</i> = 0).
+     </DIV>
+     <P>
+  </DIV>
+  
+<H1><A NAME="function.saprfc-table-append.html">saprfc_table_append</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_append &nbsp;--&nbsp;
+          Append a line at end of internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_table_append</B> (int fce, string name, array value)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Append a <i>value</i> at the end of an internal table<i>name</i>.
+  </DIV>
+
+  
+<H1><A NAME="function.saprfc-table-init.html">saprfc_table_init</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_init &nbsp;--&nbsp;
+          Init a internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_table_init</B> (int fce, string name)</CODE>
+        <P>
+     </DIV>
+     <P>
+       Deletes all rows from a table <i>name</i>. </DIV>
+
+<H1><A NAME="function.saprfc-table-insert.html">saprfc_table_insert</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_insert &nbsp;--&nbsp;
+          Insert a line to an internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_table_insert</B> (int fce, string name, array value, int index)</CODE>
+        <P>
+     </DIV>
+     <P>
+        Insert a <i>value</i> before line <i>index</i> in a table  <i>name</i>.
+  </DIV>
+
+<H1><A NAME="function.saprfc-table-modify.html">saprfc_table_modify</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_modify &nbsp;--&nbsp;
+          Modify a line of an internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_table_modify</B> (int fce, string name, array value, int index)</CODE>
+        <P>
+     </DIV>
+     <P>
+          Modify a line <i>index</i> of an internal table <i>name</i> with a <i>value</i>. 
+  </DIV>
+  
+<H1><A NAME="function.saprfc-table-read.html">saprfc_table_read</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_read &nbsp;--&nbsp;
+          Read a line from an internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> array <B> saprfc_table_read</B> (int fce, string name, int index)</CODE>
+        <P>
+     </DIV>
+     <P>
+	    Read a value from an internal table <i>name</i> from line <i>index</i> (indexed from 1,2,...)
+  </DIV>
+
+<H1><A NAME="function.saprfc-table-remove.html">saprfc_table_remove</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_remove &nbsp;--&nbsp;
+          Remove a line of an internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_table_remove</B>(int fce, string name, int index) </CODE>
+        <P>
+     </DIV>
+     <P>
+        Remove line <i>index</i> from a table <i>name</i>.
+  </DIV>
+
+<H1><A NAME="function.saprfc-table-rows.html">saprfc_table_rows</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_table_rows &nbsp;--&nbsp;
+          Get a number of lines an internal table
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_table_rows</B> (int fce, string name)</CODE>
+        <P>
+     </DIV>
+     <P>
+          Get a number of lines an internal table <i>name</i>.
+  </DIV>
+
+<H1><A NAME="#function.saprfc-trfc-call.html">saprfc_trfc_call</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_trfc_call &nbsp;--&nbsp;
+          Calls a function module in R/3 indirectly (tRFC)
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_trfc_call</B> (int fce, string tid)</CODE>
+        <P>
+     </DIV>
+     <P>
+	       Calls a function module in R/3 indirectly. <br>
+           With this function, the call of a function module in R/3 
+		   will use the transactional RFC interface in R/3.<br> 
+           Export parameters are not supported. <br>
+           If an error occurs (almost only communication errors), the RFC client program 
+		   has to reconnect to R/3 later and repeat this RFC call with the specific TransID. 
+		   It must not create a new TransID via <i>saprfc_trfc_tid()</i>
+
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfc-call-and-receive.html"><B>saprfc_call_and_receive()</B></A>,
+               <A HREF="#function.saprfc-trfc-tid.html"><B>saprfc_trfc_tid()</B></A> 
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-trfc-dispatch.html">saprfc_trfc_dispatch</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_trfc_dispatch &nbsp;--&nbsp;
+          Receives a single RFC request and call a corresponding PHP function (tRFC)
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_trfc_dispatch</B> (int rfc, array list [, int timeout])</CODE>
+        <P>
+		  Alias to <i>saprfc_server_dispatch()</i>.
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfc-server-dispatch.html"><B>saprfc_server_dispatch()</B></A>
+			  
+  </DIV>
+
+<H1><A NAME="function.saprfc-trfc-install.html">saprfc_trfc_install</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_trfc_dispatch &nbsp;--&nbsp;
+          Installs functions to control transactional behaviour (tRFC)
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_trfc_install</B> (string tid_check, string tid_commit, string tid_rollback, string tid_confirm, string dispatcher)</CODE>
+        <P>
+		   This function was introduced to allow an RFC server program to ensure 
+		   exactly-once behaviour for functions being called via tRFC in ABAP: 
+		   <i>saprfc_trfc_install()</i> must thus be called by RFC server program 
+		   before the <i>saprfc_trfc_dispatch()</i> loop is entered if this program wants 
+		   to receive transactional RFC calls and must ensure that RFC calls are done excatly once. <br>
+
+		   Without installing these functions it can only be guaranteed that an RFC function 
+		   call issued by 'Call Function... In Background Task' is done at least once. 
+		   Then all function modules offered by such a server program which are called 
+		   via 'Call Function... In Background Task' must cope with being called more then once. <br>
+
+		   If installed, the first function <i>tid_check</i>, if a transactional RFC is to be called. 
+		   The actual Transaction ID is passed. The function has to store this transaction-ID 
+		   in permanent storage and return 0. If the same function will be called later again 
+		   with the same transaction-ID, it has to make sure that it will return a non-zero value. 
+		   If the same transaction is already running by another process but is not completed, 
+		   the function has to wait until the transaction completes. <br>
+
+		   The second function <i>tid_commit</i> is called if all the RFC function module calls 
+		   are done and the local transaction can be completed. It should be used to locally 
+		   commit the transaction, if necessary . <br>
+		   
+		   The third function <i>tid_rollback</i> is called instead of the second function, 
+		   if, from the point of view of the RFC library, there occurred an error while 
+		   processing the local transaction. This function can be used to roll back the 
+		   local transaction. <br>
+
+  		   The fourth function <i>tid_confirm</i> will be called if the local transaction 
+		   is completed also from the point of view of the calling system 
+		   and all information on this transaction-ID can be discarded.<br>
+		   
+		   The last function <i>dispatcher</i> is called from <i> saprfc_trfc_dispatch()</i> and
+		   return function handle for function name.<br><br>
+		   
+           See the trfcserv.php example.
+
+
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfce-trfc-dispatch.html"><B>saprfc_trfc_dispatch()</B></A> 
+  </DIV>
+
+<H1><A NAME="function.saprfc-trfc-tid.html">saprfc_trfc_tid</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_trfc_tid &nbsp;--&nbsp;
+          Gets a transaction-ID for a following call of a function module using tRFC
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> string <B> saprfc_trfc_tid</B> (int rfc)</CODE>
+        <P>
+    		Gets a transaction-ID for a following call of a function module in R/3 
+			using the transactional RFC interface in R/3.
+			With this function a new TransID will be produced from the R/3 System. 
+			The RFC client program has to call a function module in R/3 
+			via <i>saprfc_trfc_call()</i> with this TransID. <br> 
+			If an error occurs (e.g. communication error) during the call 
+			of a function module in R/3 via <i>saprfc_trfc_call()</i>, 
+			the RFC client program has to reconnect the RFC connection 
+			and repeat the <i>saprfc_trfc_call()</i> without creating a new TransId
+     </DIV>
+     <P>
+     See also: <A HREF="#function.saprfc-trfc-call.html"><B>saprfc_trfc_call()</B></A> 
+  </DIV>
+  
+<H1><A NAME="function.saprfc-open.html">saprfc_open</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_open &nbsp;--&nbsp;
+          Open a RFC connection to  SAP R/3
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> int <B> saprfc_open</B> (array conn)</CODE>
+        <P>
+     </DIV>
+     <P>
+    	 Open a RFC connection to an SAP R/3. Return RFC handle on success or
+         false on failure. The connection parameters in array <i>conn</i> are:
+	<p>	 
+        <pre>
+        conn = array ("ASHOST" => "",          
+                      "SYSNR" => "",           
+                      "CLIENT" => "",          
+                      "USER" => "",            
+                      "PASSWD" => "",          
+                      "GWHOST" =>"",     
+                      "GWSERV" =>"",  
+                      "MSHOST" =>"",            
+                      "R3NAME" =>"",     
+                      "GROUP" =>"",           
+                      "LANG" =>"",           
+                      "TRACE" =>"");             
+          </pre>
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1. Login to aplication server</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+ $rfc = saprfc_open (array ("ASHOST"=>"server","SYSNR"=>"20","CLIENT"=>"400",
+                             "USER"=>"test", "PASSWD" =>"test"));
+   
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+        <P>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 2. Login to logon group (using load balancing)</B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+&#60;?php
+  $rfc = saprfc_open (array ("CLIENT"=>"400", "USER"=>"test", "PASSWD" =>"test", 
+                             "MSHOST"=>"server1", "R3NAME"=>"DEV", "GROUP"=>"PUBLIC"));
+
+?&#62;
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+     <P>
+
+      Note: If you use load balancing, service sapms &lt;SID&gt; (where &lt;SID&gt; is system name) must be
+      set in services file (/etc/services) on your PHP server. 
+     <p>
+     See also: <A HREF="#function.saprfc_error.html"><B>saprfc_error()</B></A>,
+              <A HREF="#function.saprfc_close.html"><B>saprfc_close()</B></A> 
+			  
+  </DIV>
+
+
+<H1><A NAME="function.saprfc-optional.html">saprfc_optional</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_optional &nbsp;--&nbsp;
+          Set a import parameter as optional
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_optional</B> (int fce, string name, bool value)</CODE>
+        <P>
+     </DIV>
+     <P>
+           Set/reset import parameter <i>name</i>  as optional (1/0).
+           Return true on success or false on failure.
+           If the parameter is set as optional and has no value assigned, the default value
+           of parameter is used (see to interface definition in transaction SE37).
+  </DIV>
+
+<H1><A NAME="function.saprfc-set-code-page.html">saprfc_set_code_page</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_set_code_page &nbsp;--&nbsp;
+          Set SAP codepage for a RFC connection
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_set_code_page</B> (int rfc, string codepage)</CODE>
+        <P>
+     </DIV>
+     <P>
+          Set SAP <i>codepage</i> for a RFC connection <i>rfc</i>.
+  </DIV>
+
+<H1><A NAME="function.saprfc-allow-start-program.html">saprfc_allow_start_program</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_allow_start_program &nbsp;--&nbsp;
+          Explicitly allows the RFC library to start the programs
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> bool <B> saprfc_allow_start_program</B> ([ string program_list ])</CODE>
+        <P>
+     </DIV>
+     <P>
+   Explicitly allows the RFC library to start the programs described in the list as input parameter program_list if this is required by the RFC partner. The program_list is a colon (;) separated list of programs that can be called from the rfc stack. If the function is called without any parameter, all programs can be called from the rfc stack.
+<br><br>
+        This call can be used either in RFC client or RFC server program.<br><br>
+	It can be useful if you have a document management system within R/3 and want to check out documents (from sap) or check in documents (to sap) with the help of the external programs sapftp/saphttp (very comfortable; ftp/http-clients that can be controlled from external here from the sap stack; can be downloaded from the SAP Service Marketplace). The call of saprfc_allow_start_program()  is needed for BAPIs like BAPI_DOCUMENT_CHECKOUTMODIFY2 or BAPI_DOCUMENT_CHECKIN2 and the like.
+<br><br>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1: Allow start external program sapftp and saphttp </B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+  	$rc = saprfc_allow_start_program ("sapftp;saphttp");
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+<br><br>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 2: Allow start any external program </B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+  	$rc = saprfc_allow_start_program ();
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+  </DIV>
+
+
+<H1><A NAME="function.saprfc-get-ticket.html">saprfc_get_ticket</A></H1>
+  <DIV>
+     <P> (PHP 4, PHP 5) <P>
+     saprfc_get_ticket &nbsp;--&nbsp;
+          Retrieve backend generated cookie version 2 after calling saprfc_open with flag GETSSO2
+  </DIV>
+  <DIV>
+      <H2 >Description</H2>
+      <DIV>
+        <P>
+        <P><CODE> string <B> saprfc_get_ticket</B> ( int rfc)</CODE>
+        <P>
+     </DIV>
+     <P>
+     Return SSO2 ticket or <b>false</b> if ticket is not available.
+<br><br>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 1: Get SSO2 logon ticket </B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+             $login = array (
+                   "ASHOST"=>"hostname",
+                   "SYSNR"=>"00",
+                   "CLIENT"=>"client",
+                   "USER"=>"username",
+                   "PASSWD"=>"password",
+                   <b>"GETSSO2"=>"1"</b>);
+             $rfc = saprfc_open ($login );
+             $ticket = saprfc_get_ticket($rfc);
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+<br><br>
+		<TABLE WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+        <TR><TD><DIV><P><p>
+		     <B>Example 2: Login with SSO2 ticket </B><p>
+			 <TABLE BORDER="0" BGCOLOR="#E0E0E0" WIDTH="100%">
+			 <TR><TD>
+			     <PRE>
+             $login = array ( 
+                  "ASHOST"=>"hostname",
+                  "SYSNR"=>"00",
+                  "CLIENT"=>"client",
+                  <b>"MYSAPSSO2"=>$ticket</b>);
+             $rfc = saprfc_open ($login );
+                 </PRE>
+			</TD></TR>
+			</TABLE>	
+        </TD></TR>
+		</TABLE>
+  </DIV>
+
+</BODY>
+</HTML>
