@@ -113,11 +113,13 @@ typedef struct {
    RFC_HANDLE handle;
    int client;
 } RFC_RESOURCE;
+#define PHP_RFC_RES_NAME "saprfc handle"
 
 typedef struct {
    RFC_HANDLE handle;
    CALD_FUNCTION_MODULE *fce;
 } FCE_RESOURCE;
+#define PHP_RFC_FUNC_RES_NAME "saprfc function module"
 
 #endif    /* PHP_SAPRFC_H */
 

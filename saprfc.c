@@ -367,8 +367,8 @@ PHP_MINIT_FUNCTION(saprfc)
     ZEND_INIT_MODULE_GLOBALS(saprfc,php_saprfc_init_globals,NULL);
 
     CAL_INIT();
-    le_rfc = zend_register_list_destructors_ex(_free_resource_rfc, NULL, "saprfc handle", module_number);
-    le_function = zend_register_list_destructors_ex(_free_resource_function, NULL, "saprfc function module", module_number);
+    le_rfc = zend_register_list_destructors_ex(_free_resource_rfc, NULL, PHP_RFC_RES_NAME, module_number);
+    le_function = zend_register_list_destructors_ex(_free_resource_function, NULL, PHP_RFC_FUNC_RES_NAME, module_number);
 
 
     /* O.K. */
@@ -528,7 +528,7 @@ PHP_FUNCTION(saprfc_open)
         rfc_resource->client = 1;
     }
 
-    RETURN_RESOURCE(zend_list_insert(rfc_resource,le_rfc));
+    ZEND_REGISTER_RESOURCE(return_value, rfc_resource, le_rfc);
 }
 /* }}} */
 
@@ -591,7 +591,7 @@ PHP_FUNCTION(saprfc_function_discover)
              CAL_DELETE(fce);
              RETURN_FALSE;
          }
-         RETURN_RESOURCE(zend_list_insert(fce_resource,le_function));
+         ZEND_REGISTER_RESOURCE(return_value, fce_resource, le_function);
     }
     else
     {
@@ -760,7 +760,7 @@ PHP_FUNCTION(saprfc_function_define)
              CAL_DELETE(fce);
              RETURN_FALSE;
          }
-         RETURN_RESOURCE(zend_list_insert(fce_resource,le_function));
+         ZEND_REGISTER_RESOURCE(return_value, fce_resource, le_function);
     }
     else
     {
@@ -1872,7 +1872,7 @@ PHP_FUNCTION(saprfc_server_accept)
         rfc_resource->client = 0;
     }
 
-    RETURN_RESOURCE(zend_list_insert(rfc_resource,le_rfc));
+    ZEND_REGISTER_RESOURCE(return_value, rfc_resource, le_rfc);
 }
 /* }}} */
 
