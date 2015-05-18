@@ -260,7 +260,7 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
 
     if ( rfc_rc != RFC_OK )
     {
-        php_error(E_WARNING, abort_text);
+        php_error(E_WARNING, "%s", abort_text);
         SAL_ABORT (rfc_handle, abort_text);
     }
 
@@ -517,7 +517,7 @@ PHP_FUNCTION(saprfc_open)
 
     if ( rfc == RFC_HANDLE_NULL )
     {
-        php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+        php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
         RETURN_FALSE;
     }
 
@@ -573,7 +573,7 @@ PHP_FUNCTION(saprfc_function_discover)
          retval = CAL_DISCOVER_INTERFACE(fce,rfc_resource->handle);
          if ( retval != 0 )
          {
-             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+             php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
              CAL_DELETE(fce);
              RETURN_FALSE;
          }
@@ -794,7 +794,7 @@ PHP_FUNCTION(saprfc_function_interface)
       iinfo = CAL_INTERFACE_INFO(f);
       if ( iinfo == NULL )
       {
-         php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+         php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
          RETURN_FALSE;
       }
       if (array_init(return_value) == FAILURE)
@@ -1026,7 +1026,7 @@ PHP_FUNCTION(saprfc_optional)
         retval = CAL_INTERFACE_IMPORT_OPT(fce_resource->fce,Z_STRVAL_P(*name),is_optional);
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1086,7 +1086,7 @@ PHP_FUNCTION(saprfc_import)
                 if (buffer) efree (buffer);
                 if ( retval != 0 )
                 {
-                    php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                    php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                     RETURN_FALSE;
                 }
                 zend_hash_move_forward(HASH_OF(*value));
@@ -1110,7 +1110,7 @@ PHP_FUNCTION(saprfc_import)
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
-                php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                 RETURN_FALSE;
             }
         }
@@ -1147,7 +1147,7 @@ PHP_FUNCTION(saprfc_export)
         iinfo = CAL_SINGLE_INTERFACE_INFO(fce_resource->fce,Z_STRVAL_P(*name),CALC_EXPORT);
         if ( iinfo == NULL )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         if ( strcmp (iinfo->typeinfo[0].name,"") != 0 ) /* structure */
@@ -1220,13 +1220,13 @@ PHP_FUNCTION(saprfc_table_init)
         retval = CAL_REFRESH_INTERNAL_BUFFER(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         retval = CAL_TBL_INIT(fce_resource->fce,Z_STRVAL_P(*name));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1268,7 +1268,7 @@ PHP_FUNCTION(saprfc_table_append)
         retval = CAL_REFRESH_INTERNAL_BUFFER(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         zend_hash_internal_pointer_reset(HASH_OF(*value));
@@ -1292,7 +1292,7 @@ PHP_FUNCTION(saprfc_table_append)
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
-                 php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                 php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                  RETURN_FALSE;
             }
             zend_hash_move_forward(HASH_OF(*value));
@@ -1300,7 +1300,7 @@ PHP_FUNCTION(saprfc_table_append)
         retval = CAL_TBL_APPEND(fce_resource->fce,Z_STRVAL_P(*name));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1344,7 +1344,7 @@ PHP_FUNCTION(saprfc_table_insert)
         retval = CAL_REFRESH_INTERNAL_BUFFER(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         zend_hash_internal_pointer_reset(HASH_OF(*value));
@@ -1368,7 +1368,7 @@ PHP_FUNCTION(saprfc_table_insert)
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
-                 php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                 php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                  RETURN_FALSE;
             }
             zend_hash_move_forward(HASH_OF(*value));
@@ -1376,7 +1376,7 @@ PHP_FUNCTION(saprfc_table_insert)
         retval = CAL_TBL_INSERT(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1420,7 +1420,7 @@ PHP_FUNCTION(saprfc_table_modify)
         retval = CAL_REFRESH_INTERNAL_BUFFER(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         zend_hash_internal_pointer_reset(HASH_OF(*value));
@@ -1444,7 +1444,7 @@ PHP_FUNCTION(saprfc_table_modify)
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
-                 php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                 php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                  RETURN_FALSE;
             }
             zend_hash_move_forward(HASH_OF(*value));
@@ -1452,7 +1452,7 @@ PHP_FUNCTION(saprfc_table_modify)
         retval = CAL_TBL_MODIFY(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1490,7 +1490,7 @@ PHP_FUNCTION(saprfc_table_remove)
         retval = CAL_TBL_REMOVE(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
     }
@@ -1528,13 +1528,13 @@ PHP_FUNCTION(saprfc_table_read)
         retval = CAL_TBL_READ(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
         if ( retval != 0 )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         iinfo = CAL_SINGLE_INTERFACE_INFO(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( iinfo == NULL )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         if (array_init(return_value) == FAILURE)
@@ -1618,7 +1618,7 @@ PHP_FUNCTION(saprfc_call_and_receive)
        rfc_rc = CAL_CALL(fce_resource->fce,fce_resource->handle);
        if ( rfc_rc != 0 )
        {
-          php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+          php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
        }
        CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
@@ -1861,7 +1861,7 @@ PHP_FUNCTION(saprfc_server_accept)
 
     if ( rfc == RFC_HANDLE_NULL )
     {
-        php_error(E_WARNING, CAL_RFC_LAST_ERROR());
+        php_error(E_WARNING, "%s", CAL_RFC_LAST_ERROR());
         RETURN_FALSE;
     }
 
@@ -1899,7 +1899,7 @@ PHP_FUNCTION(saprfc_server_import)
         iinfo = CAL_SINGLE_INTERFACE_INFO(fce_resource->fce,Z_STRVAL_P(*name),CALC_IMPORT);
         if ( iinfo == NULL )
         {
-            php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+            php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
         if ( strcmp (iinfo->typeinfo[0].name,"") != 0 ) /* structure */
@@ -1996,7 +1996,7 @@ PHP_FUNCTION(saprfc_server_export)
                 if (buffer) efree (buffer);
                 if ( retval != 0 )
                 {
-                    php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+                    php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
                     RETURN_FALSE;
                 }
                 zend_hash_move_forward(HASH_OF(*value));
@@ -2170,7 +2170,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
     {
         SAL_ABORT (rfc_resource->handle, abort_text);
         zend_list_delete (Z_RESVAL_P(*rfc));
-        php_error(E_WARNING, abort_text);
+        php_error(E_WARNING, "%s", abort_text);
     }
 
     RETURN_LONG(rfc_rc);
@@ -2248,7 +2248,7 @@ PHP_FUNCTION(saprfc_trfc_call)
        rfc_rc = CAL_INDIRECT_CALL(fce_resource->fce,fce_resource->handle,Z_STRVAL_P(*tid));
        if ( rfc_rc != 0 )
        {
-          php_error(E_WARNING, CAL_DEBUG_MESSAGE());
+          php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
        }
        CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
