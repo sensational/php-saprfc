@@ -33,7 +33,7 @@ void * DLL_CALL_BACK_FUNCTION cal_allocate (void *old_ptr, unsigned long new_siz
     if ( old_ptr == NULL )
     {
         ptr = malloc (new_size);
-        zend_printf ("RFC Allocate %d bytes, ptr %p\n",new_size,ptr);
+        zend_printf ("RFC Allocate %lu bytes, ptr %p\n",new_size,ptr);
         return (ptr);
     }
     if ( new_size == 0 )
@@ -47,7 +47,7 @@ void * DLL_CALL_BACK_FUNCTION cal_allocate (void *old_ptr, unsigned long new_siz
         return (old_ptr);
     }
     ptr = realloc(old_ptr,new_size);
-    zend_printf ("RFC Reallocate %d bytes, oldptr %p, newptr %p\n",new_size,old_ptr,ptr);
+    zend_printf ("RFC Reallocate %lu bytes, oldptr %p, newptr %p\n",new_size,old_ptr,ptr);
     return ( ptr );
 }
 
