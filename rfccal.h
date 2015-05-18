@@ -88,7 +88,10 @@
    #define CALC_LENGTH      5
    #define CALC_INIT        6
 
-/* Public interface: 
+   #define PHP_RFC_TIMEOUT_EXPIRED -1
+
+
+/* Public interface:
  *
  *   CAL_NEW(name)                     create the new function module object
  */
@@ -193,10 +196,11 @@
    #define CAL_INIT_INTERFACE_EXPORT(fce)        __cal_fce_init_interface((fce),CALC_EXPORT)          
    #define CAL_INIT_INTERFACE_TABLE(fce)         __cal_fce_init_interface((fce),CALC_TABLE)          
    #define CAL_REFRESH_INTERNAL_BUFFER(fce,name,type) __cal_fce_refresh_internal_buffer((fce),(name),(type))
-   #define CAL_CALL(fce,rfc)					 __cal_fce_call((fce),(rfc))          
-   #define CAL_INDIRECT_CALL(fce,rfc,tid)		 __cal_fce_indirect_call((fce),(rfc),(tid))          
-   #define CAL_DELETE(fce)                       __cal_del_fce((fce))          
-   #define CAL_DEL_INTERFACE(iface)              __cal_del_interface((iface))          
+   #define CAL_CALL(fce,rfc)					           __cal_fce_call((fce),(rfc),-1)
+   #define CAL_CALL_TIMEOUT(fce,rfc,timeout)     __cal_fce_call((fce),(rfc),(timeout))
+   #define CAL_INDIRECT_CALL(fce,rfc,tid)		 __cal_fce_indirect_call((fce),(rfc),(tid))
+   #define CAL_DELETE(fce)                       __cal_del_fce((fce))
+   #define CAL_DEL_INTERFACE(iface)              __cal_del_interface((iface))
    #define CAL_DEBUG_MESSAGE()                   __cal_get_internal_error_msg()
    #define CAL_RFC_LAST_ERROR()                  __cal_last_error()
    #define CAL_RFC_LIB_VERSION()                 __cal_lib_version ()
@@ -322,7 +326,7 @@ extern int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE r
 extern void __cal_fce_init_interface (CALD_FUNCTION_MODULE *fce, int type);
 extern int __cal_fce_refresh_internal_buffer (CALD_FUNCTION_MODULE *fce, char *name, int type);
 extern int __cal_fce_optional (CALD_FUNCTION_MODULE *fce, int type, char *name, int opt);
-extern int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc);
+extern int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, long timeout);
 extern int __cal_fce_indirect_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, char *tid);
 extern void __cal_del_fce (CALD_FUNCTION_MODULE *fce);
 extern void __cal_del_interface (CALD_INTERFACE_INFO *iinfo);

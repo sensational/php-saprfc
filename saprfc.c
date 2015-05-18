@@ -414,6 +414,10 @@ PHP_MINIT_FUNCTION(saprfc)
     REGISTER_LONG_CONSTANT("SAPRFC_INVALID_PARAMETER",   RFC_SYSTEM_CALLED+2,     CONST_CS | CONST_PERSISTENT);
     /* Internal use only */
     REGISTER_LONG_CONSTANT("SAPRFC_CANCELED",            RFC_SYSTEM_CALLED+3,     CONST_CS | CONST_PERSISTENT);
+
+    /* Library specific */
+    REGISTER_LONG_CONSTANT("SAPRFC_TIMEOUT_EXPIRED",     PHP_RFC_TIMEOUT_EXPIRED, CONST_CS | CONST_PERSISTENT);
+
     return SUCCESS;
 }
 
@@ -1597,15 +1601,16 @@ PHP_FUNCTION(saprfc_table_rows)
 /* }}} */
 
 
-/* {{{ proto int saprfc_call_and_receive(int fce)
+/* {{{ proto int saprfc_call_and_receive(int fce, int timeout = null)
  */
 PHP_FUNCTION(saprfc_call_and_receive)
 {
     zval *fce;
     FCE_RESOURCE *fce_resource;
     RFC_RC rfc_rc;
+    long timeout = -1;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &fce) == FAILURE){
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &fce, &timeout) == FAILURE){
         RETURN_FALSE;
     }
 
@@ -1614,15 +1619,21 @@ PHP_FUNCTION(saprfc_call_and_receive)
     if (fce_resource)
     {
        CAL_INIT_INTERFACE_EXPORT(fce_resource->fce);
-       rfc_rc = CAL_CALL(fce_resource->fce,fce_resource->handle);
+       rfc_rc = CAL_CALL_TIMEOUT(fce_resource->fce, fce_resource->handle, timeout);
        if ( rfc_rc != 0 )
        {
-          php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
+            if (rfc_rc == PHP_RFC_TIMEOUT_EXPIRED){
+                php_error(E_WARNING, "Requested timeout has expired");
+            }
+            else
+            {
+                php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
+            }
        }
        CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
 
-    RETURN_LONG (rfc_rc);
+    RETURN_LONG ((int)rfc_rc);
 }
 /* }}} */
 

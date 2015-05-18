@@ -689,10 +689,33 @@ int __cal_table (CALD_FUNCTION_MODULE *fce, int oper, char *name, int index)
     return (0);
 }
 
-int __call_with_timeout(RFC_HANDLE handle, rfc_char_t *function, RFC_PARAMETER *exporting, RFC_PARAMETER *importing, RFC_TABLE *tables, rfc_char_t **exception)
+int __call_with_timeout(long timeout, RFC_HANDLE handle, rfc_char_t *function, RFC_PARAMETER *exporting, RFC_PARAMETER *importing, RFC_TABLE *tables, rfc_char_t **exception)
 {
     int rfc_rc = RfcCall(handle, function, exporting, tables);
+    long ms = 0;
+    struct timeval time;
+    unsigned long long until;
+    unsigned long long now;
+
     if (rfc_rc == RFC_OK){
+        if (timeout >= 0){
+            gettimeofday(&time, NULL);
+            until = timeout + ((unsigned long long)time.tv_sec * 1000000) + time.tv_usec;
+            do
+            {
+                rfc_rc = RfcListen( handle );
+                if( rfc_rc == RFC_RETRY )
+                {
+                    usleep(100);
+                    gettimeofday(&time, NULL);
+                    now = ((unsigned long long)time.tv_sec * 1000000) + time.tv_usec;
+                }
+            } while ( (now < until) && (rfc_rc == RFC_RETRY) );
+
+            if( rfc_rc != RFC_OK ){
+                return PHP_RFC_TIMEOUT_EXPIRED;
+            }
+        }
         rfc_rc = RfcReceive(handle, importing, tables, exception);
     }else{
         exception = NULL;
@@ -700,7 +723,7 @@ int __call_with_timeout(RFC_HANDLE handle, rfc_char_t *function, RFC_PARAMETER *
     return rfc_rc;
 }
 
-int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
+int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, long timeout)
 {
 
     RFC_PARAMETER *Importing;
@@ -819,7 +842,7 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
 
     if (ret == RFC_OK)
     {
-         rfc_rc = __call_with_timeout(rfc, fce->name, Importing, Exporting, Tables, &fce->exception);
+         rfc_rc = __call_with_timeout(timeout, rfc, fce->name, Importing, Exporting, Tables, &fce->exception);
          if (rfc_rc != RFC_OK)
          {
              sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
