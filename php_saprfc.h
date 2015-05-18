@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
    | Author: Eduard Koucky <eduard.koucky@czech-tv.cz>                    |
    +----------------------------------------------------------------------+
-   $Id: php_saprfc.h,v 1.10 2005/12/18 16:25:42 koucky Exp $   
+   $Id: php_saprfc.h,v 1.10 2005/12/18 16:25:42 koucky Exp $
  */
 
 #ifndef PHP_SAPRFC_H
@@ -79,9 +79,9 @@ PHP_FUNCTION(saprfc_allow_start_program);
 PHP_FUNCTION(saprfc_get_ticket);
 
 
-/* 
+/*
       Declare any global variables you may need between the BEGIN
-    and END macros here:     
+    and END macros here:
 */
 
 ZEND_BEGIN_MODULE_GLOBALS(saprfc)

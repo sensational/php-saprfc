@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
    | Author: Eduard Koucky <eduard.koucky@czech-tv.cz>                    |
    +----------------------------------------------------------------------+
-   $Id: saprfc.c,v 1.43 2005/12/19 11:35:13 koucky Exp $   
+   $Id: saprfc.c,v 1.43 2005/12/19 11:35:13 koucky Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -52,7 +52,7 @@ zend_function_entry saprfc_functions[] = {
     PHP_FE(saprfc_function_debug_info,    NULL)
     PHP_FE(saprfc_optional,    NULL)
     PHP_FE(saprfc_import,    NULL)
-    PHP_FE(saprfc_export,    NULL) 
+    PHP_FE(saprfc_export,    NULL)
     PHP_FE(saprfc_table_init,    NULL)
     PHP_FE(saprfc_table_append,    NULL)
     PHP_FE(saprfc_table_insert,    NULL)
@@ -79,8 +79,8 @@ zend_function_entry saprfc_functions[] = {
     PHP_FE(saprfc_server_register_cancel,  NULL)
     PHP_FE(saprfc_function_name,  NULL)
     PHP_FE(saprfc_exception,  NULL)
-	  PHP_FE(saprfc_allow_start_program, NULL)
-	  PHP_FE(saprfc_get_ticket, NULL)
+      PHP_FE(saprfc_allow_start_program, NULL)
+      PHP_FE(saprfc_get_ticket, NULL)
     {NULL, NULL, NULL}    /* Must be the last line in saprfc_functions[] */
 };
 
@@ -112,7 +112,7 @@ static char *strtoupper (char *s)
     p=s;
     if (s)
       while (*p) { *p = toupper (*p); p++; }
-    return (s); 
+    return (s);
 }
 
 
@@ -129,7 +129,7 @@ static void _free_resource_rfc(zend_rsrc_list_entry *rsrc TSRMLS_DC)
     RFC_RESOURCE *rfc_resource = (RFC_RESOURCE *)rsrc->ptr;
 
     CAL_CLOSE(rfc_resource->handle);
-    efree (rfc_resource);    
+    efree (rfc_resource);
 }
 
 
@@ -138,7 +138,7 @@ static void _free_resource_function(zend_rsrc_list_entry *rsrc TSRMLS_DC)
     FCE_RESOURCE *fce_resource = (FCE_RESOURCE *)rsrc->ptr;
 
     CAL_DELETE(fce_resource->fce);
-    efree (fce_resource);    
+    efree (fce_resource);
 }
 
 static void php_saprfc_init_globals (zend_saprfc_globals *saprfc_globals)
@@ -171,10 +171,10 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
 
     rfc_rc = SAL_GET_NAME (rfc_handle, function_name);
     if (rfc_rc != RFC_OK) return (rfc_rc);
-     
+
     MAKE_STD_ZVAL(callback_function);
     MAKE_STD_ZVAL(callback_name);
-    if ( SAPRFCG(trfc_dispatcher) == NULL )    
+    if ( SAPRFCG(trfc_dispatcher) == NULL )
     {
         ZVAL_STRING(callback_name,"__saprfc_callback_dispatch",1);
     }
@@ -182,9 +182,9 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
     {
         ZVAL_STRING(callback_name,SAPRFCG(trfc_dispatcher),1);
     }
- 
-    ZVAL_STRING(callback_function,function_name,1);    
-    args[0] = &callback_function;  		     
+
+    ZVAL_STRING(callback_function,function_name,1);
+    args[0] = &callback_function;
 
     if ( call_user_function_ex (EG(function_table), NULL, callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
     {
@@ -194,28 +194,28 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
          {
               function_module = fce_resource->fce;
               /* retrieve import parameters and tables  */
-              CAL_INIT_INTERFACE(function_module); 
+              CAL_INIT_INTERFACE(function_module);
               rfc_rc = SAL_GET_DATA (rfc_handle, function_module);
               if (rfc_rc != RFC_OK)
               {
                  if (rfc_rc == -1)
                     sprintf(abort_text,"Error %s in RfcGetData",CAL_DEBUG_MESSAGE());
                  else
-                    sprintf(abort_text,"Error %s in RfcGetData",CAL_RFC_LAST_ERROR()); 
+                    sprintf(abort_text,"Error %s in RfcGetData",CAL_RFC_LAST_ERROR());
               }
               else
               {
                  /* call PHP function */
                  MAKE_STD_ZVAL(name);
                  ZVAL_STRING(name,function_name,1);
-                 args[0] = &callback_retval;  		     
-	 	     
+                 args[0] = &callback_retval;
+
                  if ( call_user_function_ex (EG(function_table), NULL, name, &retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
                  {
                     /* if return value is string, raise exception */
                     if (retval->type == IS_STRING && retval->value.str.len > 0 )
                     {
-                       SAL_RAISE (rfc_handle, function_module, retval->value.str.val);     	
+                       SAL_RAISE (rfc_handle, function_module, retval->value.str.val);
                     }
                     else
                     {
@@ -226,7 +226,7 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
                            if (rfc_rc == -1)
                               sprintf(abort_text,"Error %s in RfcSendData",CAL_DEBUG_MESSAGE());
                            else
-                              sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR()); 
+                              sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR());
                        }
                     }
                     zval_dtor(retval);
@@ -239,9 +239,9 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
                  }
                  zval_dtor(name);
                  FREE_ZVAL(name);
-			  }
-              CAL_INIT_INTERFACE(function_module); 
-   		  }
+              }
+              CAL_INIT_INTERFACE(function_module);
+          }
           else /* bad fce resource handle from __saprfc_callback_dispatch() */
           {
              sprintf(abort_text,"Invalid function handle returned by dispatcher()");
@@ -275,15 +275,15 @@ static int DLL_CALL_BACK_FUNCTION __callback_tid_check(RFC_TID tid)
     zval **args[1];
     SAPRFCLS_FETCH();
     TSRMLS_FETCH();
-     
+
     rc = 0;
     if (SAPRFCG(trfc_tid_check) != NULL)
     {
         MAKE_STD_ZVAL(callback_tid);
         MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(callback_name,SAPRFCG(trfc_tid_check),1);
-        ZVAL_STRING(callback_tid,tid,1);    
-        args[0] = &callback_tid;  		     
+        ZVAL_STRING(callback_tid,tid,1);
+        args[0] = &callback_tid;
 
         if ( call_user_function_ex (EG(function_table), NULL, callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
         {
@@ -305,8 +305,8 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_commit(RFC_TID tid)
         MAKE_STD_ZVAL(callback_tid);
         MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(callback_name,SAPRFCG(trfc_tid_commit),1);
-        ZVAL_STRING(callback_tid,tid,1);    
-        args[0] = &callback_tid;  		     
+        ZVAL_STRING(callback_tid,tid,1);
+        args[0] = &callback_tid;
 
         call_user_function_ex (EG(function_table), NULL, callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
      }
@@ -319,14 +319,14 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_rollback(RFC_TID tid)
     zval **args[1];
     SAPRFCLS_FETCH();
     TSRMLS_FETCH();
-    
+
     if (SAPRFCG(trfc_tid_rollback) != NULL)
     {
         MAKE_STD_ZVAL(callback_tid);
         MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(callback_name,SAPRFCG(trfc_tid_rollback),1);
-        ZVAL_STRING(callback_tid,tid,1);    
-        args[0] = &callback_tid;  		     
+        ZVAL_STRING(callback_tid,tid,1);
+        args[0] = &callback_tid;
 
         call_user_function_ex (EG(function_table), NULL, callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
      }
@@ -345,8 +345,8 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_confirm(RFC_TID tid)
         MAKE_STD_ZVAL(callback_tid);
         MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(callback_name,SAPRFCG(trfc_tid_confirm),1);
-        ZVAL_STRING(callback_tid,tid,1);    
-        args[0] = &callback_tid;  		     
+        ZVAL_STRING(callback_tid,tid,1);
+        args[0] = &callback_tid;
 
         call_user_function_ex (EG(function_table), NULL, callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
      }
@@ -366,54 +366,54 @@ PHP_MINIT_FUNCTION(saprfc)
 */
     ZEND_INIT_MODULE_GLOBALS(saprfc,php_saprfc_init_globals,NULL);
 
-    CAL_INIT(); 
+    CAL_INIT();
     le_rfc = zend_register_list_destructors_ex(_free_resource_rfc, NULL, "saprfc handle", module_number);
     le_function = zend_register_list_destructors_ex(_free_resource_function, NULL, "saprfc function module", module_number);
-     
 
-    /* O.K. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_OK",                  RFC_OK,                  CONST_CS | CONST_PERSISTENT);          
-    /* Error occurred */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_FAILURE",             RFC_FAILURE,             CONST_CS | CONST_PERSISTENT);          
-    /* Exception raised */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_EXCEPTION",           RFC_EXCEPTION,           CONST_CS | CONST_PERSISTENT);          
-    /* System exception raised, connection closed */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_SYS_EXCEPTION",       RFC_SYS_EXCEPTION,       CONST_CS | CONST_PERSISTENT);          
-    /* Call received */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_CALL",                RFC_CALL,                CONST_CS | CONST_PERSISTENT);          
-    /* Internal communication, repeat (internal use only) */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_INTERNAL_COM",        RFC_INTERNAL_COM,        CONST_CS | CONST_PERSISTENT);          
-    /* Connection closed by the other side. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_CLOSED",              RFC_CLOSED,              CONST_CS | CONST_PERSISTENT);          
-    /* No data yet (RfcListen or RfcWaitForRequest only) */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_RETRY",               RFC_RETRY,               CONST_CS | CONST_PERSISTENT);          
-    /* No Transaction ID available */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_NO_TID",              RFC_NO_TID,              CONST_CS | CONST_PERSISTENT);          
-    /* Function already executed */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_EXECUTED",            RFC_EXECUTED,            CONST_CS | CONST_PERSISTENT);          
-    /* Synchronous Call in Progress (only for Windows) */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_SYNCHRONIZE",         RFC_SYNCHRONIZE,         CONST_CS | CONST_PERSISTENT);          
-    /* Memory insufficient */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_MEMORY_INSUFFICIENT", RFC_MEMORY_INSUFFICIENT, CONST_CS | CONST_PERSISTENT);          
-    /* Version mismatch */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_VERSION_MISMATCH",    RFC_VERSION_MISMATCH,    CONST_CS | CONST_PERSISTENT);          
-    /* Function not found (internal use only) */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_NOT_FOUND",           RFC_NOT_FOUND,           CONST_CS | CONST_PERSISTENT);          
-    /* This call is not supported */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_CALL_NOT_SUPPORTED",  RFC_CALL_NOT_SUPPORTED,  CONST_CS | CONST_PERSISTENT);          
-    /* Caller does not own the specified handle */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_NOT_OWNER",           RFC_NOT_OWNER,           CONST_CS | CONST_PERSISTENT);          
-    /* RFC not yet initialized. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_NOT_INITIALIZED",     RFC_NOT_INITIALIZED,     CONST_CS | CONST_PERSISTENT);          
-    /* A system call such as RFC_PING for connectiontest is executed. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_SYSTEM_CALLED",       RFC_SYSTEM_CALLED,       CONST_CS | CONST_PERSISTENT);          
+
+    /* O.K. */
+    REGISTER_LONG_CONSTANT("SAPRFC_OK",                  RFC_OK,                  CONST_CS | CONST_PERSISTENT);
+    /* Error occurred */
+    REGISTER_LONG_CONSTANT("SAPRFC_FAILURE",             RFC_FAILURE,             CONST_CS | CONST_PERSISTENT);
+    /* Exception raised */
+    REGISTER_LONG_CONSTANT("SAPRFC_EXCEPTION",           RFC_EXCEPTION,           CONST_CS | CONST_PERSISTENT);
+    /* System exception raised, connection closed */
+    REGISTER_LONG_CONSTANT("SAPRFC_SYS_EXCEPTION",       RFC_SYS_EXCEPTION,       CONST_CS | CONST_PERSISTENT);
+    /* Call received */
+    REGISTER_LONG_CONSTANT("SAPRFC_CALL",                RFC_CALL,                CONST_CS | CONST_PERSISTENT);
+    /* Internal communication, repeat (internal use only) */
+    REGISTER_LONG_CONSTANT("SAPRFC_INTERNAL_COM",        RFC_INTERNAL_COM,        CONST_CS | CONST_PERSISTENT);
+    /* Connection closed by the other side. */
+    REGISTER_LONG_CONSTANT("SAPRFC_CLOSED",              RFC_CLOSED,              CONST_CS | CONST_PERSISTENT);
+    /* No data yet (RfcListen or RfcWaitForRequest only) */
+    REGISTER_LONG_CONSTANT("SAPRFC_RETRY",               RFC_RETRY,               CONST_CS | CONST_PERSISTENT);
+    /* No Transaction ID available */
+    REGISTER_LONG_CONSTANT("SAPRFC_NO_TID",              RFC_NO_TID,              CONST_CS | CONST_PERSISTENT);
+    /* Function already executed */
+    REGISTER_LONG_CONSTANT("SAPRFC_EXECUTED",            RFC_EXECUTED,            CONST_CS | CONST_PERSISTENT);
+    /* Synchronous Call in Progress (only for Windows) */
+    REGISTER_LONG_CONSTANT("SAPRFC_SYNCHRONIZE",         RFC_SYNCHRONIZE,         CONST_CS | CONST_PERSISTENT);
+    /* Memory insufficient */
+    REGISTER_LONG_CONSTANT("SAPRFC_MEMORY_INSUFFICIENT", RFC_MEMORY_INSUFFICIENT, CONST_CS | CONST_PERSISTENT);
+    /* Version mismatch */
+    REGISTER_LONG_CONSTANT("SAPRFC_VERSION_MISMATCH",    RFC_VERSION_MISMATCH,    CONST_CS | CONST_PERSISTENT);
+    /* Function not found (internal use only) */
+    REGISTER_LONG_CONSTANT("SAPRFC_NOT_FOUND",           RFC_NOT_FOUND,           CONST_CS | CONST_PERSISTENT);
+    /* This call is not supported */
+    REGISTER_LONG_CONSTANT("SAPRFC_CALL_NOT_SUPPORTED",  RFC_CALL_NOT_SUPPORTED,  CONST_CS | CONST_PERSISTENT);
+    /* Caller does not own the specified handle */
+    REGISTER_LONG_CONSTANT("SAPRFC_NOT_OWNER",           RFC_NOT_OWNER,           CONST_CS | CONST_PERSISTENT);
+    /* RFC not yet initialized. */
+    REGISTER_LONG_CONSTANT("SAPRFC_NOT_INITIALIZED",     RFC_NOT_INITIALIZED,     CONST_CS | CONST_PERSISTENT);
+    /* A system call such as RFC_PING for connectiontest is executed. */
+    REGISTER_LONG_CONSTANT("SAPRFC_SYSTEM_CALLED",       RFC_SYSTEM_CALLED,       CONST_CS | CONST_PERSISTENT);
     /* Fix for missing constants in RFCSDK < 4.6D, 4.5b tested */
-    /* An invalid handle was passed to an API call. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_INVALID_HANDLE",      RFC_SYSTEM_CALLED+1,     CONST_CS | CONST_PERSISTENT);          
-    /*An invalid parameter was passed to an API call. */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_INVALID_PARAMETER",   RFC_SYSTEM_CALLED+2,     CONST_CS | CONST_PERSISTENT);          
-    /* Internal use only */ 
-    REGISTER_LONG_CONSTANT("SAPRFC_CANCELED",            RFC_SYSTEM_CALLED+3,     CONST_CS | CONST_PERSISTENT);          
+    /* An invalid handle was passed to an API call. */
+    REGISTER_LONG_CONSTANT("SAPRFC_INVALID_HANDLE",      RFC_SYSTEM_CALLED+1,     CONST_CS | CONST_PERSISTENT);
+    /*An invalid parameter was passed to an API call. */
+    REGISTER_LONG_CONSTANT("SAPRFC_INVALID_PARAMETER",   RFC_SYSTEM_CALLED+2,     CONST_CS | CONST_PERSISTENT);
+    /* Internal use only */
+    REGISTER_LONG_CONSTANT("SAPRFC_CANCELED",            RFC_SYSTEM_CALLED+3,     CONST_CS | CONST_PERSISTENT);
     return SUCCESS;
 }
 
@@ -438,14 +438,14 @@ PHP_RSHUTDOWN_FUNCTION(saprfc)
     SAPRFCLS_FETCH();
 
     /* clean memory allocated fo global variables */
-    
+
     SAPRFCG(trfc_install_flag)=0;
     if (SAPRFCG(trfc_tid_check))     efree (SAPRFCG(trfc_tid_check));
     if (SAPRFCG(trfc_tid_commit))    efree (SAPRFCG(trfc_tid_commit));
     if (SAPRFCG(trfc_tid_rollback))  efree (SAPRFCG(trfc_tid_rollback));
     if (SAPRFCG(trfc_tid_confirm))   efree (SAPRFCG(trfc_tid_confirm));
     if (SAPRFCG(trfc_dispatcher))    efree (SAPRFCG(trfc_dispatcher));
-     
+
     return SUCCESS;
 }
 
@@ -484,8 +484,8 @@ PHP_FUNCTION(saprfc_open)
 
     convert_to_array_ex(conn);
     hash = HASH_OF(*conn);
-    
-    buflen = 0; 
+
+    buflen = 0;
     zend_hash_internal_pointer_reset(hash);
     while ( zend_hash_get_current_key(hash,&string_key, &num_key, 0) == HASH_KEY_IS_STRING)
     {
@@ -495,7 +495,7 @@ PHP_FUNCTION(saprfc_open)
         buflen += Z_STRLEN_P(*value_ptr);
         zend_hash_move_forward(hash);
     }
-    
+
     buffer = ecalloc(1,buflen+128);
     if ( buffer )
     {
@@ -503,11 +503,11 @@ PHP_FUNCTION(saprfc_open)
         while ( zend_hash_get_current_key(hash,&string_key, &num_key, 0) == HASH_KEY_IS_STRING)
         {
             strcat (buffer,string_key);
-            strcat (buffer,"="); 
+            strcat (buffer,"=");
             zend_hash_get_current_data(hash,(void **)&value_ptr);
             convert_to_string_ex(value_ptr);
             strcat (buffer,Z_STRVAL_P(*value_ptr));
-            strcat (buffer," "); 
+            strcat (buffer," ");
             zend_hash_move_forward(hash);
         }
     }
@@ -517,17 +517,17 @@ PHP_FUNCTION(saprfc_open)
 
     if ( rfc == RFC_HANDLE_NULL )
     {
-        php_error(E_WARNING, CAL_DEBUG_MESSAGE());          
+        php_error(E_WARNING, CAL_DEBUG_MESSAGE());
         RETURN_FALSE;
     }
 
     rfc_resource = (RFC_RESOURCE *) emalloc (sizeof(RFC_RESOURCE));
-    if (rfc_resource) 
-    { 
+    if (rfc_resource)
+    {
         rfc_resource->handle = rfc;
         rfc_resource->client = 1;
     }
-    
+
     RETURN_RESOURCE(zend_list_insert(rfc_resource,le_rfc));
 }
 /* }}} */
@@ -556,7 +556,7 @@ PHP_FUNCTION(saprfc_function_discover)
            WRONG_PARAM_COUNT;
         }
         convert_to_boolean_ex(not_trim);
-        not_trim_flag = (Z_LVAL_P(*not_trim)) ? 1 : 0; 
+        not_trim_flag = (Z_LVAL_P(*not_trim)) ? 1 : 0;
     }
 
     convert_to_string_ex(function_module);
@@ -579,7 +579,7 @@ PHP_FUNCTION(saprfc_function_discover)
          }
 
          fce_resource = (FCE_RESOURCE *) emalloc (sizeof(FCE_RESOURCE));
-         if (fce_resource) 
+         if (fce_resource)
          {
              fce_resource->handle = rfc_resource->handle;
              if (not_trim_flag == 1) CAL_SET_RAWSTR(fce);
@@ -618,8 +618,8 @@ PHP_FUNCTION(saprfc_function_define)
     int ilen, idec, ioptional, iofs;
     int rfc_undef = 0;
     int not_trim_flag=0;
-    
-    
+
+
     if (ZEND_NUM_ARGS() < 3 || ZEND_NUM_ARGS() > 4 ) {
         WRONG_PARAM_COUNT;
     }
@@ -632,14 +632,14 @@ PHP_FUNCTION(saprfc_function_define)
            WRONG_PARAM_COUNT;
         }
         convert_to_boolean_ex(not_trim);
-        not_trim_flag = (Z_LVAL_P(*not_trim)) ? 1 : 0; 
+        not_trim_flag = (Z_LVAL_P(*not_trim)) ? 1 : 0;
     }
 
     convert_to_long_ex(rfc);
     convert_to_string_ex(function_module);
     convert_to_array_ex(iface);
 
-    if (Z_LVAL_P(*rfc) == 0) 
+    if (Z_LVAL_P(*rfc) == 0)
     {
         rfc_resource = NULL;
         rfc_undef = 1;
@@ -654,12 +654,12 @@ PHP_FUNCTION(saprfc_function_define)
              php_error(E_WARNING, "fail allocate internal memory for function %s",Z_STRVAL_P(*function_module));
              RETURN_FALSE;
          }
-         if_max = zend_hash_num_elements (HASH_OF(*iface)); 
+         if_max = zend_hash_num_elements (HASH_OF(*iface));
          for (i=0; i<if_max; i++)
          {
-            
+
             if ( zend_hash_index_find(HASH_OF(*iface),i,(void **)&param) ==  SUCCESS )
-            {            
+            {
                 iname = iitem = iabap = "";
                 ilen = idec = ioptional = 0;
                 convert_to_array_ex(param);
@@ -678,7 +678,7 @@ PHP_FUNCTION(saprfc_function_define)
                 if ( zend_hash_find(HASH_OF(*param),"type", sizeof ("optional"), (void **)&tmp ) == SUCCESS )
                 {
                     convert_to_boolean_ex(tmp);
-                    ioptional = Z_LVAL_P(*tmp);                   
+                    ioptional = Z_LVAL_P(*tmp);
                 }
                 if ( zend_hash_find(HASH_OF(*param),"def", sizeof  ("def"), (void **)&def ) == SUCCESS )
                 {
@@ -694,38 +694,38 @@ PHP_FUNCTION(saprfc_function_define)
                                 convert_to_string_ex(tmp);
                                 iitem = Z_STRVAL_P(*tmp);
                                 strtoupper(iitem);
-                            }  
+                            }
                             if ( zend_hash_find(HASH_OF(*item),"abap",sizeof ("abap"), (void **)&tmp ) == SUCCESS )
                             {
                                 convert_to_string_ex(tmp);
-                                iabap = Z_STRVAL_P(*tmp);                            
-                            }  
+                                iabap = Z_STRVAL_P(*tmp);
+                            }
                             if ( zend_hash_find(HASH_OF(*item),"len",sizeof ("len"), (void **)&tmp ) == SUCCESS )
                             {
                                 convert_to_long_ex(tmp);
-                                ilen = (int) Z_LVAL_P(*tmp);                            
-                            }  
+                                ilen = (int) Z_LVAL_P(*tmp);
+                            }
                             if ( zend_hash_find(HASH_OF(*item),"dec",sizeof ("dec"), (void **)&tmp ) == SUCCESS )
                             {
                                 convert_to_long_ex(tmp);
-                                idec = (int) Z_LVAL_P(*tmp);                            
-                            }  
+                                idec = (int) Z_LVAL_P(*tmp);
+                            }
                             if ( zend_hash_find(HASH_OF(*item),"offset",sizeof ("offset"), (void **)&tmp ) == SUCCESS )
                             {
                                 convert_to_long_ex(tmp);
-                                iofs = (int) Z_LVAL_P(*tmp);                            
+                                iofs = (int) Z_LVAL_P(*tmp);
                             }
                             else
                                 iofs = -1;
                         }
-                        
+
                         fce->par_offset = iofs;
                         if ( strcmp (itype,"IMPORT") == 0 )
                         {
                             if (def_max == 1) iitem="";
                             CAL_INTERFACE_IMPORT_RAW(fce,iname,iitem,*iabap,ilen,idec);
                             CAL_INTERFACE_IMPORT_OPT(fce,iname,ioptional);
-                        } 
+                        }
                         else if ( strcmp (itype,"EXPORT") == 0 )
                         {
                             if (def_max == 1) iitem="";
@@ -740,12 +740,12 @@ PHP_FUNCTION(saprfc_function_define)
                         fce->par_offset = -1;
                     }
                 }
-            } 
+            }
          }
          CAL_INIT_INTERFACE(fce);
          fce_resource = (FCE_RESOURCE *) emalloc (sizeof(FCE_RESOURCE));
-         
-         if (fce_resource) 
+
+         if (fce_resource)
          {
              if (rfc_undef)
                  fce_resource->handle = 0;
@@ -782,7 +782,7 @@ PHP_FUNCTION(saprfc_function_interface)
     int i,j;
     char abap_tmp[2];
     zval *param, *def, *item;
-    
+
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &fce) == FAILURE){
     WRONG_PARAM_COUNT;
     }
@@ -820,7 +820,7 @@ PHP_FUNCTION(saprfc_function_interface)
            case CALC_TABLE  : add_assoc_string (param,"type","TABLE",1); break;
            default          : add_assoc_string (param,"type","UNDEF",1); break;
          }
-		 add_assoc_long (param,"optional",iinfo[i].is_optional);
+         add_assoc_long (param,"optional",iinfo[i].is_optional);
          MAKE_STD_ZVAL(def);
          if (array_init(def) == FAILURE)
          {
@@ -857,8 +857,8 @@ PHP_FUNCTION(saprfc_function_interface)
           RETURN_FALSE;
     }
 
-    CAL_DEL_INTERFACE(iinfo); 
-    return;     
+    CAL_DEL_INTERFACE(iinfo);
+    return;
 }
 /* }}} */
 
@@ -870,18 +870,18 @@ PHP_FUNCTION(saprfc_function_debug_info)
     FCE_RESOURCE *fce_resource;
     CALD_FUNCTION_MODULE *f;
     CALD_INTERFACE_INFO *iinfo, *p;
-	char *optstr;
+    char *optstr;
     int type;
     int i,j,k;
     int flag;
     int size;
-	int print_only_values=0;
-    
+    int print_only_values=0;
+
     if ( ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2  || zend_get_parameters_ex(1, &fce) == FAILURE){
        WRONG_PARAM_COUNT;
     }
 
-	if ( zend_get_parameters_ex(2, &only_values) == SUCCESS ) print_only_values = 1;
+    if ( zend_get_parameters_ex(2, &only_values) == SUCCESS ) print_only_values = 1;
 
     fce_resource = (FCE_RESOURCE *) zend_list_find (Z_RESVAL_P(*fce),&type);
     if (fce_resource && type == le_function)
@@ -890,23 +890,23 @@ PHP_FUNCTION(saprfc_function_debug_info)
         iinfo = CAL_INTERFACE_INFO(f);
         if (f->unicode == 0)
             zend_printf ("<h3>Function module: %s (remote SAP R/3: %s)</h3>\n",f->name,f->rfcsaprl);
-        else       
-            zend_printf ("<h3>Function module: %s (remote SAP R/3: %s Unicode)</h3>\n",f->name,f->rfcsaprl); 
+        else
+            zend_printf ("<h3>Function module: %s (remote SAP R/3: %s Unicode)</h3>\n",f->name,f->rfcsaprl);
         if (print_only_values == 0)
         {
           for (j=CALC_IMPORT; j<=CALC_TABLE; j++)        /* show interface definition */
-		  {
+          {
             switch (j) {
                case CALC_IMPORT: zend_printf ("<h3>IMPORT</h3>\n<table>"); break;
                case CALC_EXPORT: zend_printf ("<h3>EXPORT</h3>\n<table>"); break;
-               case CALC_TABLE: zend_printf ("<h3>TABLE</h3>\n<table>"); break;       
-               default: zend_printf ("<h3>UNDEF</h3>\n<table>");        
+               case CALC_TABLE: zend_printf ("<h3>TABLE</h3>\n<table>"); break;
+               default: zend_printf ("<h3>UNDEF</h3>\n<table>");
             }
             p = iinfo;
             while (p->name)
             {
-               if (p->type == j) 
-               { 
+               if (p->type == j)
+               {
                  flag = 1;
                  for (i=0;i<p->size;i++)
                  {
@@ -914,8 +914,8 @@ PHP_FUNCTION(saprfc_function_debug_info)
                    if ( flag )
                    {
                       if (p->is_optional)
-                        zend_printf ("<td><b>%s /o/</b></td>",p->name);  
-                      else    
+                        zend_printf ("<td><b>%s /o/</b></td>",p->name);
+                      else
                         zend_printf ("<td><b>%s</b></td>",p->name);
                    }
                    else
@@ -928,32 +928,32 @@ PHP_FUNCTION(saprfc_function_debug_info)
                }
                p++;
             }
-            zend_printf ("</table>");         
+            zend_printf ("</table>");
         }
      }
-    
+
      for (j=CALC_IMPORT; j<=CALC_TABLE; j++)        /* show internal buffer values */
      {
             p = iinfo;
             while (p->name)
             {
-               if (p->type == j) 
-               { 
-                 if (p->is_optional) 
+               if (p->type == j)
+               {
+                 if (p->is_optional)
                     optstr = " (optional)";
                  else
                     optstr = "";
                  switch (j) {
                     case CALC_IMPORT: zend_printf ("<h3>Value of import (input) parameter <b>%s</b>%s (memory = %d):</h3>",p->name,optstr, p->buflen); break;
                     case CALC_EXPORT: zend_printf ("<h3>Value of export (output) parameter <b>%s</b>%s (memory = %d):</h3>",p->name,optstr,p->buflen); break;
-                    case CALC_TABLE: zend_printf ("<h3>Internal table <b>%s</b>%s (memory = %d):</h3>",p->name,optstr,p->buflen); break;       
+                    case CALC_TABLE: zend_printf ("<h3>Internal table <b>%s</b>%s (memory = %d):</h3>",p->name,optstr,p->buflen); break;
                  }
 
                  /* header */
                  if ( strcmp (p->typeinfo[0].name,"") != 0 )
                  {
                      zend_printf ("<table><tr>");
-                     for (i=0;i<p->size;i++) 
+                     for (i=0;i<p->size;i++)
                          zend_printf ("<td><b>%s</b></td>",p->typeinfo[i].name);
                      zend_printf ("</tr>");
                  }
@@ -966,21 +966,21 @@ PHP_FUNCTION(saprfc_function_debug_info)
                  else if ( j!= CALC_TABLE )                  /* export or import structure */
                  {
                      zend_printf ("<tr>");
-                     for (i=0;i<p->size;i++) 
-                        if (j==CALC_IMPORT) 
+                     for (i=0;i<p->size;i++)
+                        if (j==CALC_IMPORT)
                            zend_printf ("<td>\"%s\"</td>",CAL_GET_IMPORT_STRUCT(f,p->name,p->typeinfo[i].name));
                         else
                            zend_printf ("<td>\"%s\"</td>",CAL_GET_EXPORT_STRUCT(f,p->name,p->typeinfo[i].name));
                      zend_printf ("</tr></table>");
                  }
-                 else /* table */                        
+                 else /* table */
                  {
                      size = CAL_TBL_LENGTH(f,p->name);
                      for (k=1;k<=size;k++)
                      {
                          zend_printf ("<tr>");
                          CAL_TBL_READ (f,p->name,k);
-                         for (i=0;i<p->size;i++) 
+                         for (i=0;i<p->size;i++)
                              zend_printf ("<td>\"%s\"</td>",CAL_GET_TABLE(f,p->name,p->typeinfo[i].name));
                          zend_printf ("</tr>");
                      }
@@ -997,8 +997,8 @@ PHP_FUNCTION(saprfc_function_debug_info)
           RETURN_FALSE;
     }
 
-    CAL_DEL_INTERFACE(iinfo); 
-    return;     
+    CAL_DEL_INTERFACE(iinfo);
+    return;
 }
 /* }}} */
 
@@ -1010,7 +1010,7 @@ PHP_FUNCTION(saprfc_optional)
     zval **fce, **name, **value;
     FCE_RESOURCE *fce_resource;
     int retval, type, is_optional;
-    
+
     if (ZEND_NUM_ARGS() != 3 || zend_get_parameters_ex(3, &fce, &name, &value) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1023,7 +1023,7 @@ PHP_FUNCTION(saprfc_optional)
     if (fce_resource && type == le_function)
     {
         is_optional = (Z_LVAL_P(*value)) ? 1 : 0;
-		retval = CAL_INTERFACE_IMPORT_OPT(fce_resource->fce,Z_STRVAL_P(*name),is_optional);
+        retval = CAL_INTERFACE_IMPORT_OPT(fce_resource->fce,Z_STRVAL_P(*name),is_optional);
         if ( retval != 0 )
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
@@ -1052,7 +1052,7 @@ PHP_FUNCTION(saprfc_import)
     char *val;
     char *buffer;
     int len, retval, type;
-    
+
     if (ZEND_NUM_ARGS() != 3 || zend_get_parameters_ex(3, &fce, &name, &value) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1071,10 +1071,10 @@ PHP_FUNCTION(saprfc_import)
                 strtoupper (string_key);
                 zend_hash_get_current_data(HASH_OF(*value),(void **)&tmp);
                 convert_to_string_ex(tmp);
-                buffer = NULL; 
+                buffer = NULL;
                 if ( CAL_DEF_IMPORT_STRUCT_TYPE(fce_resource->fce,Z_STRVAL_P(*name),string_key) == TYPX )
                 {
-                    len = CAL_DEF_IMPORT_STRUCT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);    
+                    len = CAL_DEF_IMPORT_STRUCT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);
                     buffer = ecalloc (1,len);
                     memcpy (buffer,Z_STRVAL_P(*tmp),Z_STRLEN_P(*tmp));
                 }
@@ -1082,7 +1082,7 @@ PHP_FUNCTION(saprfc_import)
                     val = Z_STRVAL_P(*tmp);
                 else
                     val = buffer;
-                retval = CAL_SET_IMPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),string_key,val); 
+                retval = CAL_SET_IMPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),string_key,val);
                 if (buffer) efree (buffer);
                 if ( retval != 0 )
                 {
@@ -1094,11 +1094,11 @@ PHP_FUNCTION(saprfc_import)
         }
         else
         {
-            convert_to_string_ex(value);   
-            buffer = NULL; 
+            convert_to_string_ex(value);
+            buffer = NULL;
             if ( CAL_DEF_IMPORT_TYPE(fce_resource->fce,Z_STRVAL_P(*name)) == TYPX )
             {
-                len = CAL_DEF_IMPORT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name));    
+                len = CAL_DEF_IMPORT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name));
                 buffer = ecalloc (1,len);
                 memcpy (buffer,Z_STRVAL_P(*value),Z_STRLEN_P(*value));
             }
@@ -1106,7 +1106,7 @@ PHP_FUNCTION(saprfc_import)
                 val = Z_STRVAL_P(*value);
             else
                 val = buffer;
-            retval = CAL_SET_IMPORT(fce_resource->fce,Z_STRVAL_P(*name),val); 
+            retval = CAL_SET_IMPORT(fce_resource->fce,Z_STRVAL_P(*name),val);
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
@@ -1162,13 +1162,13 @@ PHP_FUNCTION(saprfc_export)
             {
                  if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
                     add_assoc_stringl(return_value,
-                                      iinfo->typeinfo[i].name, 
+                                      iinfo->typeinfo[i].name,
                                       CAL_GET_EXPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                       iinfo->typeinfo[i].length,
                                       1);
-                 else    
+                 else
                     add_assoc_string (return_value,
-                                      iinfo->typeinfo[i].name, 
+                                      iinfo->typeinfo[i].name,
                                       CAL_GET_EXPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                       1);
             }
@@ -1181,8 +1181,8 @@ PHP_FUNCTION(saprfc_export)
                                 iinfo->typeinfo[0].length,
                                 1);
              }
-             else 
-             {     
+             else
+             {
                  RETVAL_STRING(CAL_GET_EXPORT(fce_resource->fce,Z_STRVAL_P(*name)),1);
              }
         }
@@ -1205,8 +1205,8 @@ PHP_FUNCTION(saprfc_table_init)
     int retval;
     int type;
     FCE_RESOURCE *fce_resource;
-    
-    
+
+
     if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &fce, &name) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1277,10 +1277,10 @@ PHP_FUNCTION(saprfc_table_append)
             strtoupper (string_key);
             zend_hash_get_current_data(HASH_OF(*value),(void **)&tmp);
             convert_to_string_ex(tmp);
-            buffer = NULL; 
+            buffer = NULL;
             if ( CAL_DEF_TABLE_TYPE(fce_resource->fce,Z_STRVAL_P(*name),string_key) == TYPX )
             {
-               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);    
+               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);
                buffer = ecalloc (1,len);
                memcpy (buffer,Z_STRVAL_P(*tmp),Z_STRLEN_P(*tmp));
             }
@@ -1288,7 +1288,7 @@ PHP_FUNCTION(saprfc_table_append)
                 val = Z_STRVAL_P(*tmp);
             else
                 val = buffer;
-            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val); 
+            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val);
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
@@ -1302,7 +1302,7 @@ PHP_FUNCTION(saprfc_table_append)
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
-        }    
+        }
     }
     else
     {
@@ -1310,7 +1310,7 @@ PHP_FUNCTION(saprfc_table_append)
           RETURN_FALSE;
     }
 
-    RETURN_TRUE;   
+    RETURN_TRUE;
 }
 /* }}} */
 
@@ -1328,7 +1328,7 @@ PHP_FUNCTION(saprfc_table_insert)
     int len;
     FCE_RESOURCE *fce_resource;
 
-    
+
     if (ZEND_NUM_ARGS() != 4 || zend_get_parameters_ex(4, &fce, &name, &value, &index) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1353,10 +1353,10 @@ PHP_FUNCTION(saprfc_table_insert)
             strtoupper (string_key);
             zend_hash_get_current_data(HASH_OF(*value),(void **)&tmp);
             convert_to_string_ex(tmp);
-            buffer = NULL; 
+            buffer = NULL;
             if ( CAL_DEF_TABLE_TYPE(fce_resource->fce,Z_STRVAL_P(*name),string_key) == TYPX )
             {
-               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);    
+               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);
                buffer = ecalloc (1,len);
                memcpy (buffer,Z_STRVAL_P(*tmp),Z_STRLEN_P(*tmp));
             }
@@ -1364,7 +1364,7 @@ PHP_FUNCTION(saprfc_table_insert)
                 val = Z_STRVAL_P(*tmp);
             else
                 val = buffer;
-            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val); 
+            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val);
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
@@ -1378,7 +1378,7 @@ PHP_FUNCTION(saprfc_table_insert)
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
-        }    
+        }
     }
     else
     {
@@ -1386,7 +1386,7 @@ PHP_FUNCTION(saprfc_table_insert)
           RETURN_FALSE;
     }
 
-    RETURN_TRUE;   
+    RETURN_TRUE;
 }
 /* }}} */
 
@@ -1429,10 +1429,10 @@ PHP_FUNCTION(saprfc_table_modify)
             strtoupper (string_key);
             zend_hash_get_current_data(HASH_OF(*value),(void **)&tmp);
             convert_to_string_ex(tmp);
-            buffer = NULL; 
+            buffer = NULL;
             if ( CAL_DEF_TABLE_TYPE(fce_resource->fce,Z_STRVAL_P(*name),string_key) == TYPX )
             {
-               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);    
+               len = CAL_DEF_TABLE_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);
                buffer = ecalloc (1,len);
                memcpy (buffer,Z_STRVAL_P(*tmp),Z_STRLEN_P(*tmp));
             }
@@ -1440,7 +1440,7 @@ PHP_FUNCTION(saprfc_table_modify)
                 val = Z_STRVAL_P(*tmp);
             else
                 val = buffer;
-            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val); 
+            retval = CAL_SET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),string_key,val);
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
@@ -1454,7 +1454,7 @@ PHP_FUNCTION(saprfc_table_modify)
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
-        }    
+        }
     }
     else
     {
@@ -1462,7 +1462,7 @@ PHP_FUNCTION(saprfc_table_modify)
           RETURN_FALSE;
     }
 
-    RETURN_TRUE;   
+    RETURN_TRUE;
 }
 /* }}} */
 
@@ -1492,7 +1492,7 @@ PHP_FUNCTION(saprfc_table_remove)
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
-        }    
+        }
     }
     else
     {
@@ -1525,12 +1525,12 @@ PHP_FUNCTION(saprfc_table_read)
     fce_resource = (FCE_RESOURCE *) zend_list_find (Z_RESVAL_P(*fce),&type);
     if (fce_resource && type == le_function)
     {
-	    retval = CAL_TBL_READ(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
+        retval = CAL_TBL_READ(fce_resource->fce,Z_STRVAL_P(*name),Z_LVAL_P(*index));
         if ( retval != 0 )
         {
             php_error(E_WARNING, CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
-        }    
+        }
         iinfo = CAL_SINGLE_INTERFACE_INFO(fce_resource->fce,Z_STRVAL_P(*name),CALC_TABLE);
         if ( iinfo == NULL )
         {
@@ -1547,13 +1547,13 @@ PHP_FUNCTION(saprfc_table_read)
         {
             if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
              add_assoc_stringl(return_value,
-                               iinfo->typeinfo[i].name, 
+                               iinfo->typeinfo[i].name,
                                  CAL_GET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                iinfo->typeinfo[i].length,
                                1);
-           else    
+           else
              add_assoc_string (return_value,
-                               iinfo->typeinfo[i].name, 
+                               iinfo->typeinfo[i].name,
                                CAL_GET_TABLE(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                1);
            }
@@ -1576,7 +1576,7 @@ PHP_FUNCTION(saprfc_table_rows)
     zval **fce, **name;
     FCE_RESOURCE *fce_resource;
     int type;
-    
+
     if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &fce, &name) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1605,7 +1605,7 @@ PHP_FUNCTION(saprfc_call_and_receive)
     zval **fce;
     FCE_RESOURCE *fce_resource;
     int type;
-	RFC_RC rfc_rc;
+    RFC_RC rfc_rc;
 
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &fce) == FAILURE){
         WRONG_PARAM_COUNT;
@@ -1619,15 +1619,15 @@ PHP_FUNCTION(saprfc_call_and_receive)
        if ( rfc_rc != 0 )
        {
           php_error(E_WARNING, CAL_DEBUG_MESSAGE());
-       }    
-       CAL_INIT_INTERFACE_IMPORT(fce_resource->fce); 
+       }
+       CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
     else
     {
        php_error(E_WARNING, "Invalid resource for function module");
        RETURN_LONG(-1);
     }
-    RETURN_LONG (rfc_rc);   
+    RETURN_LONG (rfc_rc);
 }
 /* }}} */
 
@@ -1647,7 +1647,7 @@ PHP_FUNCTION(saprfc_exception)
     zval **fce;
     FCE_RESOURCE *fce_resource;
     int type;
-    
+
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &fce) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1656,19 +1656,19 @@ PHP_FUNCTION(saprfc_exception)
     if (fce_resource && type == le_function)
     {
       if (fce_resource->fce->exception)
-      { 
+      {
           RETURN_STRING(fce_resource->fce->exception,1);
       }
       else
       {
-          RETURN_FALSE; 
+          RETURN_FALSE;
       }
     }
     else
     {
-		php_error(E_WARNING, "Invalid resource for function module");
+        php_error(E_WARNING, "Invalid resource for function module");
         RETURN_FALSE;
-    }    
+    }
 }
 /* }}} */
 
@@ -1692,7 +1692,7 @@ PHP_FUNCTION(saprfc_function_free)
         php_error(E_WARNING, "Invalid resource for function module");
         RETURN_FALSE;
     }
-    
+
     RETURN_TRUE;
 }
 /* }}} */
@@ -1717,7 +1717,7 @@ PHP_FUNCTION(saprfc_close)
         php_error(E_WARNING, "Invalid resource for RFC connection");
         RETURN_FALSE;
     }
-    
+
     RETURN_TRUE;
 }
 /* }}} */
@@ -1729,7 +1729,7 @@ PHP_FUNCTION(saprfc_set_code_page)
     zval **rfc, **codepage;
     RFC_RESOURCE *rfc_resource;
     int type;
-	int retval;
+    int retval;
 
     if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &rfc, &codepage) == FAILURE){
         WRONG_PARAM_COUNT;
@@ -1739,7 +1739,7 @@ PHP_FUNCTION(saprfc_set_code_page)
 
     rfc_resource = (RFC_RESOURCE *) zend_list_find (Z_RESVAL_P(*rfc),&type);
     if (rfc_resource && type == le_rfc)
-    {   
+    {
        retval = CAL_SET_CODE_PAGE(rfc_resource->handle,Z_STRVAL_P(*codepage));
        if ( retval != 0 )
        {
@@ -1752,7 +1752,7 @@ PHP_FUNCTION(saprfc_set_code_page)
         php_error(E_WARNING, "Invalid resource for RFC connection");
         RETURN_FALSE;
     }
-    
+
     RETURN_TRUE;
 }
 
@@ -1761,11 +1761,11 @@ PHP_FUNCTION(saprfc_set_code_page)
 PHP_FUNCTION(saprfc_attributes)
 {
     zval **rfc;
-    RFC_RESOURCE *rfc_resource;   
+    RFC_RESOURCE *rfc_resource;
     int type;
-	RFC_ATTRIBUTES attributes;
-	int retval;
-    
+    RFC_ATTRIBUTES attributes;
+    int retval;
+
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &rfc) == FAILURE){
     WRONG_PARAM_COUNT;
     }
@@ -1779,7 +1779,7 @@ PHP_FUNCTION(saprfc_attributes)
          php_error (E_WARNING,"RfcGetAttributes error");
          RETURN_FALSE;
       }
-		
+
       if (array_init(return_value) == FAILURE)
       {
          php_error (E_WARNING,"array_init failed");
@@ -1805,17 +1805,17 @@ PHP_FUNCTION(saprfc_attributes)
       add_assoc_string(return_value,"partner_rel",attributes.partner_rel,1);
       add_assoc_string(return_value,"kernel_rel",attributes.kernel_rel,1);
       add_assoc_string(return_value,"CPIC_convid",attributes.CPIC_convid,1);
-      /*  unsupported by rfcsdk < 4.6D, maybe better fix in future  
+      /*  unsupported by rfcsdk < 4.6D, maybe better fix in future
           add_assoc_stringl(return_value,"password_sate", &attributes.password_sate,1,1);
        */
     }
     else
     {
         php_error(E_WARNING, "Invalid resource for RFC connection");
-        RETURN_FALSE;			
+        RETURN_FALSE;
     }
 
-    return;     
+    return;
 }
 /* }}} */
 
@@ -1829,49 +1829,49 @@ PHP_FUNCTION(saprfc_server_accept)
     RFC_RESOURCE *rfc_resource;
     char **argv;
     int argc;
-	zval **param;
+    zval **param;
     int i;
 
 
-    argv = NULL; 
+    argv = NULL;
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &args) == FAILURE){
        WRONG_PARAM_COUNT;
     }
     if ( (*args)->type == IS_ARRAY )
     {
-        argc = zend_hash_num_elements (HASH_OF(*args)); 
+        argc = zend_hash_num_elements (HASH_OF(*args));
         argv = ecalloc (1,(argc+1) * sizeof (char *));
         if (argv)
         {
-		  for (i=0; i<argc; i++)
+          for (i=0; i<argc; i++)
             if ( zend_hash_index_find(HASH_OF(*args),i,(void **)&param) ==  SUCCESS )
-                argv[i] = Z_STRVAL_P(*param);  
+                argv[i] = Z_STRVAL_P(*param);
         }
     }
     else
         convert_to_string_ex(args);
 
-    if (argv) 
+    if (argv)
     {
-        rfc = SAL_ACCEPT(argv); 
-        efree (argv);  
+        rfc = SAL_ACCEPT(argv);
+        efree (argv);
     }
     else
         rfc = SAL_ACCEPT_EXT(Z_STRVAL_P(*args));
 
     if ( rfc == RFC_HANDLE_NULL )
     {
-        php_error(E_WARNING, CAL_RFC_LAST_ERROR());          
+        php_error(E_WARNING, CAL_RFC_LAST_ERROR());
         RETURN_FALSE;
     }
 
     rfc_resource = (RFC_RESOURCE *) emalloc (sizeof(RFC_RESOURCE));
-    if (rfc_resource) 
-    { 
+    if (rfc_resource)
+    {
         rfc_resource->handle = rfc;
         rfc_resource->client = 0;
     }
-    
+
     RETURN_RESOURCE(zend_list_insert(rfc_resource,le_rfc));
 }
 /* }}} */
@@ -1879,7 +1879,7 @@ PHP_FUNCTION(saprfc_server_accept)
 /* {{{ proto mixed saprfc_server_import(int fce, string name)
  */
 PHP_FUNCTION(saprfc_server_import)
-{    
+{
     zval **fce, **name;
     int i;
     int type;
@@ -1914,13 +1914,13 @@ PHP_FUNCTION(saprfc_server_import)
             {
                  if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
                     add_assoc_stringl(return_value,
-                                      iinfo->typeinfo[i].name, 
+                                      iinfo->typeinfo[i].name,
                                       CAL_GET_IMPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                       iinfo->typeinfo[i].length,
                                       1);
-                 else    
+                 else
                     add_assoc_string (return_value,
-                                      iinfo->typeinfo[i].name, 
+                                      iinfo->typeinfo[i].name,
                                       CAL_GET_IMPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),iinfo->typeinfo[i].name),
                                       1);
             }
@@ -1933,8 +1933,8 @@ PHP_FUNCTION(saprfc_server_import)
                                    iinfo->typeinfo[0].length,
                                    1);
              }
-             else 
-             {     
+             else
+             {
                  RETVAL_STRING(CAL_GET_IMPORT(fce_resource->fce,Z_STRVAL_P(*name)),1);
              }
         }
@@ -1962,7 +1962,7 @@ PHP_FUNCTION(saprfc_server_export)
     char *val;
     char *buffer;
     int len, retval, type;
-    
+
     if (ZEND_NUM_ARGS() != 3 || zend_get_parameters_ex(3, &fce, &name, &value) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -1981,10 +1981,10 @@ PHP_FUNCTION(saprfc_server_export)
                 strtoupper (string_key);
                 zend_hash_get_current_data(HASH_OF(*value),(void **)&tmp);
                 convert_to_string_ex(tmp);
-                buffer = NULL; 
+                buffer = NULL;
                 if ( CAL_DEF_EXPORT_STRUCT_TYPE(fce_resource->fce,Z_STRVAL_P(*name),string_key) == TYPX )
                 {
-                    len = CAL_DEF_EXPORT_STRUCT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);    
+                    len = CAL_DEF_EXPORT_STRUCT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name),string_key);
                     buffer = ecalloc (1,len);
                     memcpy (buffer,Z_STRVAL_P(*tmp),Z_STRLEN_P(*tmp));
                 }
@@ -1992,7 +1992,7 @@ PHP_FUNCTION(saprfc_server_export)
                     val = Z_STRVAL_P(*tmp);
                 else
                     val = buffer;
-                retval = CAL_SET_EXPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),string_key,val); 
+                retval = CAL_SET_EXPORT_STRUCT(fce_resource->fce,Z_STRVAL_P(*name),string_key,val);
                 if (buffer) efree (buffer);
                 if ( retval != 0 )
                 {
@@ -2004,11 +2004,11 @@ PHP_FUNCTION(saprfc_server_export)
         }
         else
         {
-            convert_to_string_ex(value);   
-            buffer = NULL; 
+            convert_to_string_ex(value);
+            buffer = NULL;
             if ( CAL_DEF_EXPORT_TYPE(fce_resource->fce,Z_STRVAL_P(*name)) == TYPX )
             {
-                len = CAL_DEF_EXPORT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name));    
+                len = CAL_DEF_EXPORT_LENGTH(fce_resource->fce,Z_STRVAL_P(*name));
                 buffer = ecalloc (1,len);
                 memcpy (buffer,Z_STRVAL_P(*value),Z_STRLEN_P(*value));
             }
@@ -2016,7 +2016,7 @@ PHP_FUNCTION(saprfc_server_export)
                 val = Z_STRVAL_P(*value);
             else
                 val = buffer;
-            retval = CAL_SET_EXPORT(fce_resource->fce,Z_STRVAL_P(*name),val); 
+            retval = CAL_SET_EXPORT(fce_resource->fce,Z_STRVAL_P(*name),val);
             if (buffer) efree (buffer);
             if ( retval != 0 )
             {
@@ -2052,7 +2052,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
     char abort_text[1024];
     zval *name, *retval;
     zval **args[1];
-	
+
     timeout_val = 0;
     num = 0;
     rfc_rc = RFC_OK;
@@ -2063,7 +2063,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
 
     convert_to_array_ex(list);
 
-    if ( zend_get_parameters_ex(3, &timeout) == SUCCESS ) 
+    if ( zend_get_parameters_ex(3, &timeout) == SUCCESS )
     {
        convert_to_long_ex (timeout);
        timeout_val = Z_LVAL_P(*timeout);
@@ -2085,13 +2085,13 @@ PHP_FUNCTION(saprfc_server_dispatch)
        rfc_rc = SAL_GET_NAME (rfc_resource->handle, function_name);
        if ( rfc_rc == RFC_SYSTEM_CALLED ) /* handle system call,  RFC_PING */
           RETURN_LONG(RFC_OK);
-            /* and tRFC call */     
+            /* and tRFC call */
        if (rfc_rc != RFC_OK)
           RETURN_LONG(rfc_rc);
 
        /* get function resource */
        strtoupper (function_name);
-       if ( zend_hash_find(HASH_OF(*list),function_name,strlen(function_name)+1, (void **)&fce ) != SUCCESS )		
+       if ( zend_hash_find(HASH_OF(*list),function_name,strlen(function_name)+1, (void **)&fce ) != SUCCESS )
        {
           sprintf(abort_text,"RFC function %s is not implemented in this server program",function_name);
           rfc_rc = -1;
@@ -2104,7 +2104,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
           {
               function_module = fce_resource->fce;
               /* retrieve import parameters and tables  */
-              CAL_INIT_INTERFACE(function_module); 
+              CAL_INIT_INTERFACE(function_module);
               /* CAL_INIT_INTERFACE_EXPORT(function_module);*/
               rfc_rc = SAL_GET_DATA (rfc_resource->handle, function_module);
               if (rfc_rc != RFC_OK)
@@ -2112,21 +2112,21 @@ PHP_FUNCTION(saprfc_server_dispatch)
                  if (rfc_rc == -1)
                     sprintf(abort_text,"Error %s in RfcGetData",CAL_DEBUG_MESSAGE());
                  else
-                    sprintf(abort_text,"Error %s in RfcGetData",CAL_RFC_LAST_ERROR()); 
+                    sprintf(abort_text,"Error %s in RfcGetData",CAL_RFC_LAST_ERROR());
               }
               else
               {
                  /* call PHP function */
                  MAKE_STD_ZVAL(name);
                  ZVAL_STRING(name,function_name,1);
-                 args[0] = fce;  		     
-	 	     
+                 args[0] = fce;
+
                  if ( call_user_function_ex (EG(function_table), NULL, name, &retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
                  {
                     /* if return value is string, raise exception */
                     if (retval->type == IS_STRING && retval->value.str.len > 0 )
                     {
-                       SAL_RAISE (rfc_resource->handle, function_module, retval->value.str.val);     	
+                       SAL_RAISE (rfc_resource->handle, function_module, retval->value.str.val);
                     }
                     else
                     {
@@ -2137,7 +2137,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
                            if (rfc_rc == -1)
                               sprintf(abort_text,"Error %s in RfcSendData",CAL_DEBUG_MESSAGE());
                            else
-                              sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR()); 
+                              sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR());
                        }
                     }
                     zval_dtor(retval);
@@ -2150,22 +2150,22 @@ PHP_FUNCTION(saprfc_server_dispatch)
                  }
                  zval_dtor(name);
                  FREE_ZVAL(name);
-			  }
-              CAL_INIT_INTERFACE(function_module); 
+              }
+              CAL_INIT_INTERFACE(function_module);
           }
           else
-          {      
+          {
               sprintf(abort_text,"RFC function %s is not implemented in this server program",function_name);
               rfc_rc = -1;
           }
-		}
-	}
-	else
+        }
+    }
+    else
     {
         php_error(E_WARNING, "Invalid resource for RFC connection");
-        RETURN_LONG(-1);			
+        RETURN_LONG(-1);
     }
-   
+
     if ( rfc_rc != RFC_OK )
     {
         SAL_ABORT (rfc_resource->handle, abort_text);
@@ -2186,7 +2186,7 @@ PHP_FUNCTION(saprfc_trfc_install)
     zval **tid_check, **tid_commit, **tid_rollback, **tid_confirm, **dispatcher;
     RFC_RC rfc_rc;
     SAPRFCLS_FETCH();
-	
+
     if (ZEND_NUM_ARGS() != 5 || zend_get_parameters_ex(5, &tid_check,&tid_commit,&tid_rollback,&tid_confirm,&dispatcher) == FAILURE){
         WRONG_PARAM_COUNT;
     }
@@ -2233,7 +2233,7 @@ PHP_FUNCTION(saprfc_trfc_call)
     zval **fce, **tid;
     FCE_RESOURCE *fce_resource;
     int type;
-	RFC_RC rfc_rc;
+    RFC_RC rfc_rc;
 
     if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &fce, &tid) == FAILURE){
         WRONG_PARAM_COUNT;
@@ -2249,15 +2249,15 @@ PHP_FUNCTION(saprfc_trfc_call)
        if ( rfc_rc != 0 )
        {
           php_error(E_WARNING, CAL_DEBUG_MESSAGE());
-       }    
-       CAL_INIT_INTERFACE_IMPORT(fce_resource->fce); 
+       }
+       CAL_INIT_INTERFACE_IMPORT(fce_resource->fce);
     }
     else
     {
        php_error(E_WARNING, "Invalid resource for function module");
        RETURN_LONG(-1);
     }
-    RETURN_LONG (rfc_rc);   
+    RETURN_LONG (rfc_rc);
 }
 /* }}} */
 
@@ -2284,7 +2284,7 @@ PHP_FUNCTION(saprfc_trfc_tid)
     else
     {
         php_error(E_WARNING, "Invalid resource for RFC connection");
-        RETURN_FALSE;			
+        RETURN_FALSE;
     }
     if (rfc_rc == RFC_OK)
     {
@@ -2293,7 +2293,7 @@ PHP_FUNCTION(saprfc_trfc_tid)
     }
     else
     {
-         RETURN_FALSE;			
+         RETURN_FALSE;
     }
 
 }
@@ -2320,10 +2320,10 @@ PHP_FUNCTION(saprfc_set_trace)
     {
        CAL_SET_TRACE(rfc_resource->handle,lv);
     }
-	else
+    else
     {
        CAL_SET_TRACE(RFC_HANDLE_NULL,lv);
-        
+
     }
     return;
 
@@ -2336,7 +2336,7 @@ PHP_FUNCTION(saprfc_set_trace)
 PHP_FUNCTION(saprfc_server_register_check)
 {
     zval **tpid, **gwhost, **gwserver;
-	RFC_RC rfc_rc;
+    RFC_RC rfc_rc;
     int ntotal, ninit, nready, nbusy;
     RFC_ERROR_INFO_EX error_info;
 
@@ -2347,7 +2347,7 @@ PHP_FUNCTION(saprfc_server_register_check)
     convert_to_string_ex(tpid);
     convert_to_string_ex(gwhost);
     convert_to_string_ex(gwserver);
-   
+
     rfc_rc = SAL_CHECK_REGISTER(Z_STRVAL_P(*tpid),Z_STRVAL_P(*gwhost),Z_STRVAL_P(*gwserver),&ntotal,&ninit,&nready,&nbusy,&error_info);
     if ( rfc_rc != RFC_OK )
     {
@@ -2375,7 +2375,7 @@ PHP_FUNCTION(saprfc_server_register_check)
 PHP_FUNCTION(saprfc_server_register_cancel)
 {
     zval **tpid, **gwhost, **gwserver;
-	RFC_RC rfc_rc;
+    RFC_RC rfc_rc;
     int ntotal, ncancel;
     RFC_ERROR_INFO_EX error_info;
 
@@ -2386,7 +2386,7 @@ PHP_FUNCTION(saprfc_server_register_cancel)
     convert_to_string_ex(tpid);
     convert_to_string_ex(gwhost);
     convert_to_string_ex(gwserver);
-   
+
     rfc_rc = SAL_CANCEL_REGISTER(Z_STRVAL_P(*tpid),Z_STRVAL_P(*gwhost),Z_STRVAL_P(*gwserver),&ntotal,&ncancel,&error_info);
     if ( rfc_rc != RFC_OK )
     {
@@ -2414,7 +2414,7 @@ PHP_FUNCTION(saprfc_function_name)
     zval **fce;
     FCE_RESOURCE *fce_resource;
     int type;
-    
+
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &fce) == FAILURE){
     WRONG_PARAM_COUNT;
     }
@@ -2422,8 +2422,8 @@ PHP_FUNCTION(saprfc_function_name)
     fce_resource = (FCE_RESOURCE *) zend_list_find (Z_RESVAL_P(*fce),&type);
     if (fce_resource && type == le_function)
     {
-          RETURN_STRING (fce_resource->fce->name,1);     
-   
+          RETURN_STRING (fce_resource->fce->name,1);
+
     }
     else
     {
@@ -2436,40 +2436,40 @@ PHP_FUNCTION(saprfc_function_name)
  */
 PHP_FUNCTION(saprfc_allow_start_program)
 {
-	zval  **program_list;
-	int noparam;
-	RFC_RC rfc_rc;
+    zval  **program_list;
+    int noparam;
+    RFC_RC rfc_rc;
 
-	noparam = 0;
-	if (ZEND_NUM_ARGS() > 2) {
+    noparam = 0;
+    if (ZEND_NUM_ARGS() > 2) {
         WRONG_PARAM_COUNT;
-	} else if (ZEND_NUM_ARGS() == 0) {
-		noparam = 1;
-	}
+    } else if (ZEND_NUM_ARGS() == 0) {
+        noparam = 1;
+    }
     else if  ( zend_get_parameters_ex(1, &program_list) == FAILURE){
         WRONG_PARAM_COUNT;
     }
 
     convert_to_string_ex(program_list);
 
-	if (noparam == 1) {
-		rfc_rc = CAL_ALLOW_START_PROGRAM(NULL);
-	}
-	else {
-		rfc_rc = CAL_ALLOW_START_PROGRAM(Z_STRVAL_P(*program_list));
-	}
+    if (noparam == 1) {
+        rfc_rc = CAL_ALLOW_START_PROGRAM(NULL);
+    }
+    else {
+        rfc_rc = CAL_ALLOW_START_PROGRAM(Z_STRVAL_P(*program_list));
+    }
 
-	if (rfc_rc == RFC_OK)
+    if (rfc_rc == RFC_OK)
     {
          RETURN_TRUE;
     }
     else
     {
         php_error(E_WARNING, "RfcAllowStartProgram failed with code = %d",rfc_rc);
-        RETURN_FALSE;			
+        RETURN_FALSE;
     }
 }
- 
+
 /* }}} */
 
 /* {{{ proto string saprfc_get_ticket(int rfc)
@@ -2477,11 +2477,11 @@ PHP_FUNCTION(saprfc_allow_start_program)
 PHP_FUNCTION(saprfc_get_ticket)
 {
     zval **rfc;
-    RFC_RESOURCE *rfc_resource;   
+    RFC_RESOURCE *rfc_resource;
     RFC_CHAR ticket[1024];
     RFC_RC rfc_rc;
     int type;
-    
+
     if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &rfc) == FAILURE){
     WRONG_PARAM_COUNT;
     }
@@ -2496,16 +2496,16 @@ PHP_FUNCTION(saprfc_get_ticket)
          }
          else {
             php_error(E_WARNING, "Unable get SSO ticket");
-            RETURN_FALSE;			
+            RETURN_FALSE;
          }
     }
     else
     {
         php_error(E_WARNING, "Invalid resource for RFC connection");
-        RETURN_FALSE;			
+        RETURN_FALSE;
     }
 
-    return;     
+    return;
 }
 /* }}} */
 
