@@ -44,7 +44,7 @@ static int le_rfc, le_function;
 
 /* Every user visible function must have an entry in saprfc_functions[].
 */
-function_entry saprfc_functions[] = {
+zend_function_entry saprfc_functions[] = {
     PHP_FE(saprfc_open,    NULL)
     PHP_FE(saprfc_function_discover,    NULL)
     PHP_FE(saprfc_function_define,    NULL)
