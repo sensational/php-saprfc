@@ -13,3 +13,16 @@ ltmain.sh
 missing
 mkinstalldirs
 run-tests.php
+.deps
+.libs
+Makefile
+Makefile.fragments
+Makefile.objects
+config.h
+config.log
+config.nice
+config.status
+libtool
+modules
+*.lo
+*.la
