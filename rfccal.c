@@ -9,8 +9,8 @@
 #define TEMP_BUFFER_SIZE 128
 #define INIT_ERROR_MESSAGE()   *CAL_LAST_ERROR_MESSAGE=0
 #define FEATURE_3x_COMPATIBILITY(version)     version[0]=='3'
-#define FEATURE_OPTIONAL_PARAM(version)       (version[0]=='4' && version[1]=='6') || version[0]>'4'  
-#define FEATURE_UNICODE(version)              version[0]>='6' 
+#define FEATURE_OPTIONAL_PARAM(version)       (version[0]=='4' && version[1]=='6') || version[0]>'4'
+#define FEATURE_UNICODE(version)              version[0]>='6'
 
 static char CAL_LAST_ERROR_MESSAGE[1024];
 static char RFC_LAST_ERROR_MESSAGE[1024];
@@ -37,14 +37,14 @@ void * DLL_CALL_BACK_FUNCTION cal_allocate (void *old_ptr, unsigned long new_siz
         return (ptr);
     }
     if ( new_size == 0 )
-    { 
+    {
         if (old_ptr == NULL ) zend_printf ("RFC Free: NULL pointer passed\n");
-        else 
-        { 
-           free(old_ptr); 
+        else
+        {
+           free(old_ptr);
            zend_printf ("RFC Free, ptr %p\n",old_ptr);
         }
-        return (old_ptr); 
+        return (old_ptr);
     }
     ptr = realloc(old_ptr,new_size);
     zend_printf ("RFC Reallocate %d bytes, oldptr %p, newptr %p\n",new_size,old_ptr,ptr);
@@ -60,7 +60,7 @@ static char *strtoupper (char *s)
     p=s;
     if (s)
       while (*p) { *p = toupper (*p); p++; }
-    return (s); 
+    return (s);
 }
 
 /* internal function */
@@ -89,7 +89,7 @@ static char *cal_conv_rfc_to_string (void *rfc_value, CALD_DEFINITION *def)
     switch (def->type) {
         case TYPC:     i=def->len-1;
                        if (def->is_rawstr == 0)
-                       {    
+                       {
                            while (i>=0 && dest[i] == ' ') i--;
                        }
                        def->retbuf = VCALLOC(i+2);
@@ -103,7 +103,7 @@ static char *cal_conv_rfc_to_string (void *rfc_value, CALD_DEFINITION *def)
         case TYPX:     def->retbuf = VCALLOC(def->len+1);
                        memcpy (def->retbuf,rfc_value,def->len);
                        break;
-        case TYPP:     RfcConvertBcdToChar (rfc_value,def->len,def->decimals,tmp,TEMP_BUFFER_SIZE); 
+        case TYPP:     RfcConvertBcdToChar (rfc_value,def->len,def->decimals,tmp,TEMP_BUFFER_SIZE);
                        p=tmp; while (*p==' ') p++;
                        s=tmp+TEMP_BUFFER_SIZE-1; while (*s==' ') { *s=0; s--; }
                        def->retbuf = VCALLOC (strlen(p)+1);
@@ -125,11 +125,11 @@ static char *cal_conv_rfc_to_string (void *rfc_value, CALD_DEFINITION *def)
                        def->retbuf = VCALLOC (strlen(tmp)+1);
                        memcpy (def->retbuf,tmp,strlen(tmp));
                        break;
-        case TYPDATE:  
+        case TYPDATE:
         case TYPTIME:  def->retbuf = VCALLOC (def->len+1);
                        memcpy (def->retbuf,rfc_value,def->len);
                        break;
-        default:       def->retbuf = VCALLOC (def->len+1); 
+        default:       def->retbuf = VCALLOC (def->len+1);
                       *def->retbuf = 0;
     }
     return (def->retbuf);
@@ -145,7 +145,7 @@ static void cal_conv_string_to_rfc (char *param, void *rfc_value, CALD_DEFINITIO
     RFC_INT *pi;
     RFC_FLOAT *pf;
 
-     
+
     p1 = rfc_value;
     p2 = rfc_value;
     pi = rfc_value;
@@ -155,25 +155,25 @@ static void cal_conv_string_to_rfc (char *param, void *rfc_value, CALD_DEFINITIO
              case TYPDATE: param="00000000"; break;
              case TYPTIME: param="000000"; break;
              case TYPNUM:
-             case TYPP:    
-             case TYPINT:    
-             case TYPINT1:    
+             case TYPP:
+             case TYPINT:
+             case TYPINT1:
              case TYPINT2: param="0";break;
-             case TYPFLOAT:param="0.0";break;    
-        } 
-    
+             case TYPFLOAT:param="0.0";break;
+        }
+
     switch (def->type) {
-       case TYPC:    
+       case TYPC:
        case TYPDATE:
        case TYPTIME: memset (rfc_value,' ',def->len);
                      memcpy (rfc_value,param,__MIN(strlen(param),def->len));
                      break;
        case TYPNUM:  memset (rfc_value,'0',def->len);
-                     offset=def->len-(__MIN(strlen(param),def->len)); 
+                     offset=def->len-(__MIN(strlen(param),def->len));
                      memcpy ((char *)rfc_value+offset,param,__MIN(strlen(param),def->len));
                      break;
        case TYPX:    memset (rfc_value,0,def->len);
-                     memcpy (rfc_value,param,def->len); 
+                     memcpy (rfc_value,param,def->len);
                      break;
        case TYPP:    RfcConvertCharToBcd (param,strlen(param),&def->decimals,rfc_value,def->len);
                      break;
@@ -184,16 +184,16 @@ static void cal_conv_string_to_rfc (char *param, void *rfc_value, CALD_DEFINITIO
        case TYPINT : *pi = (RFC_INT) atol(param);
                      break;
        case TYPFLOAT:*pf = atof(param);
-                     break; 
+                     break;
        default:      memset (rfc_value,0,def->len);   /* unknown data type */
-                     break; 
+                     break;
     }
 }
 
 /* internal function, convert ABAP (C,I,D,T...) type to RFC type */
 static void cal_conv_abap_to_rfc (CALD_DEFINITION *def, char abap_type, int length, int decimal)
 {
-    
+
     abap_type = toupper (abap_type);
     switch (abap_type) {
         case 'C': def->type = TYPC;
@@ -235,7 +235,7 @@ static void cal_conv_abap_to_rfc (CALD_DEFINITION *def, char abap_type, int leng
         case 'T': def->type = TYPTIME;
                   def->len = 6;
                   def->decimals = 0;
-                  break;       
+                  break;
         default : def->type = TYPC;
                   def->len = length;
                   def->decimals = 0;
@@ -247,18 +247,18 @@ static void cal_conv_abap_to_rfc (CALD_DEFINITION *def, char abap_type, int leng
 static char cal_conv_rfc_to_abap (int rfc_type)
 {
     char abap=' ';
-    
+
     switch (rfc_type) {
         case TYPC    : abap='C'; break;
         case TYPNUM  : abap='N'; break;
-        case TYPX    : abap='X'; break;                       
-        case TYPP    : abap='P'; break;                       
-        case TYPINT1 : abap='b'; break;                       
-        case TYPINT2 : abap='s'; break;                       
-        case TYPINT  : abap='I'; break;                       
-        case TYPFLOAT: abap='F'; break;                       
-        case TYPDATE : abap='D'; break;                       
-        case TYPTIME : abap='T'; break;                       
+        case TYPX    : abap='X'; break;
+        case TYPP    : abap='P'; break;
+        case TYPINT1 : abap='b'; break;
+        case TYPINT2 : abap='s'; break;
+        case TYPINT  : abap='I'; break;
+        case TYPFLOAT: abap='F'; break;
+        case TYPDATE : abap='D'; break;
+        case TYPTIME : abap='T'; break;
         default      : abap=' '; break;
     }
     return (abap);
@@ -285,12 +285,12 @@ CALD_DEFINITION *cal_def_set_offset (CALD_DEFINITION *def, char *item, int p_off
 {
     int alignment, offset;
 
-    offset = 0;   
+    offset = 0;
     while (def)
     {
         switch (def->type) {
-           case TYPINT2 : 
-           case TYPINT  : 
+           case TYPINT2 :
+           case TYPINT  :
            case TYPFLOAT: alignment = offset % def->len; if (alignment) alignment = def->len-alignment; break;
            default      : alignment = 0; break;
 
@@ -313,9 +313,9 @@ static int cal_def_count (CALD_DEFINITION *def)
    CALD_DEFINITION *p;
 
    p=def;
-   while (p) 
-   { 
-       count++; 
+   while (p)
+   {
+       count++;
        p=p->next;
    }
    return (count);
@@ -344,7 +344,7 @@ static RFC_TYPE_ELEMENT *cal_def_array (CALD_DEFINITION *def,int num)
 static CALD_INTERFACE *cal_iface_find_or_create (CALD_FUNCTION_MODULE *fce,char *name,int type)
 {
     CALD_INTERFACE *iface, *p;
-    
+
     if (fce->iface == NULL)
       {
          fce->iface = VCALLOC(sizeof(CALD_INTERFACE));
@@ -355,7 +355,7 @@ static CALD_INTERFACE *cal_iface_find_or_create (CALD_FUNCTION_MODULE *fce,char 
          p = iface = fce->iface;
          while (iface)
          {
-             if ( iface->type == type && strcmp (iface->name,name)==0 ) 
+             if ( iface->type == type && strcmp (iface->name,name)==0 )
                  return (iface);
              p = iface;
              iface = iface->next;
@@ -363,7 +363,7 @@ static CALD_INTERFACE *cal_iface_find_or_create (CALD_FUNCTION_MODULE *fce,char 
          p->next = VCALLOC(sizeof(CALD_INTERFACE));
          iface = p->next;
       }
-    strsafecpy (iface->name,name,CALC_INTERFACE_SZ);  
+    strsafecpy (iface->name,name,CALC_INTERFACE_SZ);
     iface->type = type;
     return (iface);
 }
@@ -371,7 +371,7 @@ static CALD_INTERFACE *cal_iface_find_or_create (CALD_FUNCTION_MODULE *fce,char 
 /* internal function,  find existing interface */
 static CALD_INTERFACE *cal_iface_find (CALD_FUNCTION_MODULE *fce,char *name,int type)
 {
-    CALD_INTERFACE *p; 
+    CALD_INTERFACE *p;
 
     p = fce->iface;
     while (p)
@@ -389,7 +389,7 @@ static void cal_iface_add (CALD_INTERFACE *iface, char* item,char abap, unsigned
 {
     CALD_DEFINITION *def, *p;
     int alignment;
-   
+
     if (iface->def == NULL)
       {
          iface->def = VCALLOC(sizeof(CALD_DEFINITION));
@@ -408,7 +408,7 @@ static void cal_iface_add (CALD_INTERFACE *iface, char* item,char abap, unsigned
          def=p->next;
          iface->num++;
       }
-    strsafecpy (def->item,item,CALC_DEFINITION_SZ);  
+    strsafecpy (def->item,item,CALC_DEFINITION_SZ);
     cal_conv_abap_to_rfc (def,abap,len,decimals);
     cal_def_set_offset (iface->def,def->item, offset);
 
@@ -424,9 +424,9 @@ static int cal_iface_count (CALD_FUNCTION_MODULE *fce, int type)
    CALD_INTERFACE *p;
 
    p=fce->iface;
-   while (p) 
-   { 
-       if ( p->type==type || type==CALC_UNDEF ) count++; 
+   while (p)
+   {
+       if ( p->type==type || type==CALC_UNDEF ) count++;
        p=p->next;
    }
    return (count);
@@ -447,7 +447,7 @@ static CALD_INTERFACE *cal_iface_get_index (CALD_FUNCTION_MODULE *fce, int type,
       while (p)
       {
         if ( p->type == type &&  index == 0) break;
-        if ( p->type == type ) index--;      
+        if ( p->type == type ) index--;
         p=p->next;
       }
     }
@@ -456,7 +456,7 @@ static CALD_INTERFACE *cal_iface_get_index (CALD_FUNCTION_MODULE *fce, int type,
 
 
 /* internal function, init buffer for value */
-static void cal_iface_init_buffer (CALD_INTERFACE *iface) 
+static void cal_iface_init_buffer (CALD_INTERFACE *iface)
 {
     CALD_DEFINITION *p;
     int offset;
@@ -467,7 +467,7 @@ static void cal_iface_init_buffer (CALD_INTERFACE *iface)
     while (p)
     {
         cal_def_find (iface->def,p->item, &offset);
-        /* special handling for RAW data type inicialization */  
+        /* special handling for RAW data type inicialization */
         if (p->type == TYPX)
         {
              rawbuf = VCALLOC (p->len);
@@ -491,7 +491,7 @@ static void cal_iface_init_buffer (CALD_INTERFACE *iface)
 
 RFC_HANDLE  _cal_open (char *connect_param)
 {
-    RFC_ERROR_INFO_EX  error_info; 
+    RFC_ERROR_INFO_EX  error_info;
     RFC_HANDLE rfc;
 
     INIT_ERROR_MESSAGE();
@@ -504,7 +504,7 @@ RFC_HANDLE  _cal_open (char *connect_param)
        sprintf(CAL_LAST_ERROR_MESSAGE+strlen(CAL_LAST_ERROR_MESSAGE),"Key      : %s\n", error_info.key );
        sprintf(CAL_LAST_ERROR_MESSAGE+strlen(CAL_LAST_ERROR_MESSAGE),"Message  : %s\n", error_info.message );
     }
-    return (rfc);		  
+    return (rfc);
 }
 
 
@@ -516,8 +516,8 @@ CALD_FUNCTION_MODULE *__cal_fce_new (char *name)
     fce = VCALLOC (sizeof(CALD_FUNCTION_MODULE));
     strsafecpy (fce->name,name,CALC_FUNCNAME_SZ);
     strsafecpy (fce->rfcsaprl,"40B",3);                 /* set SAP R/3 40B as default version */
-    fce->par_offset = -1;   /* set compatibility with  saprfc < 1.1, compute offset position in structure */                
-    fce->unicode = 0;     
+    fce->par_offset = -1;   /* set compatibility with  saprfc < 1.1, compute offset position in structure */
+    fce->unicode = 0;
     return (fce);
 }
 
@@ -527,11 +527,11 @@ int __cal_fce_interface (CALD_FUNCTION_MODULE *fce, int type, char *name, char *
    CALD_INTERFACE *iface;
 
    INIT_ERROR_MESSAGE();
-   /* check and exit */  
+   /* check and exit */
    if (!name || !fce) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Null parameter name or fce, __cal_fce_interface()"); return (-1); }
-   iface = cal_iface_find_or_create (fce,name,type);  
+   iface = cal_iface_find_or_create (fce,name,type);
    /* check and exit */  if (!iface) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface, __cal_fce_interface()"); return (-1); }
-   cal_iface_add (iface,item,abap,len,decimals,fce->par_offset); 
+   cal_iface_add (iface,item,abap,len,decimals,fce->par_offset);
    return (0);
 }
 
@@ -597,10 +597,10 @@ int __cal_set (CALD_FUNCTION_MODULE *fce, int type, char *name, char *item, char
     /* check and exit */  if (!iface) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Can't find interface name %s, __cal_set()",name); return (-1); }
     def = cal_def_find (iface->def,item, &offset);
     /* check and exit */  if (!def) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Can't find structure item %s for interface %s, __cal_set()",item,name); return (-1); }
-    if ( !iface->buffer ) 
+    if ( !iface->buffer )
         iface->buffer = VCALLOC(iface->buflen);
-    /* check and exit */  if (!iface->buffer) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface->buffer, __cal_set()"); return (-1); }    
-    cal_conv_string_to_rfc (value, iface->buffer+offset, def);   
+    /* check and exit */  if (!iface->buffer) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface->buffer, __cal_set()"); return (-1); }
+    cal_conv_string_to_rfc (value, iface->buffer+offset, def);
     if (type != CALC_TABLE)
         iface->is_set = 1;
     return (0);
@@ -618,13 +618,13 @@ char *__cal_get (CALD_FUNCTION_MODULE *fce, int type, char *name, char *item)
     /* check and exit */  if (!iface) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Can't find interface name %s, __cal_get()",name); return (NULL); }
     def = cal_def_find (iface->def,item, &offset);
     /* check and exit */  if (!def) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Can't find structure item %s for interface %s, __cal_get()",item,name); return (NULL); }
-    if ( !iface->buffer ) 
+    if ( !iface->buffer )
     {
         iface->buffer = VCALLOC(iface->buflen);
         if (iface->buffer) cal_iface_init_buffer (iface);
     }
     /* check and exit */  if (!iface->buffer) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface->buffer, __cal_get()"); return (NULL); }
-    
+
     cal_conv_rfc_to_string (iface->buffer+offset, def);
     return (def->retbuf);
 }
@@ -644,11 +644,11 @@ int __cal_table (CALD_FUNCTION_MODULE *fce, int oper, char *name, int index)
     if ( iface->handle == ITAB_NULL && iface->is_rfcgetdata_table == 1) return (0);
     if ( iface->handle == ITAB_NULL )
     {
-       iface->defarray = cal_def_array (iface->def,iface->num); 
+       iface->defarray = cal_def_array (iface->def,iface->num);
        /* check and exit */ if (!iface->defarray) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface->defarray, __cal_table()"); return (-1); }
        rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
        /* check and exit */ if (rfc_rc != 0) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d, __cal_table()",rfc_rc); return (-1); }
-       if (!iface->buffer) 
+       if (!iface->buffer)
        {
           iface->buffer = VCALLOC(iface->buflen);
           if (iface->buffer) cal_iface_init_buffer (iface);
@@ -656,33 +656,33 @@ int __cal_table (CALD_FUNCTION_MODULE *fce, int oper, char *name, int index)
        /* check and exit */ if (!iface->buffer){ sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for iface->buffer, __cal_table()"); return (-1); }
        iface->handle = ItCreate (iface->name,iface->buflen,0,0);
        /* check and exit */ if (iface->handle == ITAB_NULL) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItCreate() error, __cal_table()"); return (-1); }
-    }  
+    }
     switch (oper) {
         case CALC_READ   : len = ItLeng (iface->handle);
-                           ptr = ItGetLine (iface->handle,index);  
+                           ptr = ItGetLine (iface->handle,index);
                            /* check and exit */ if (!ptr) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItGetLine() error, __cal_table()"); return (-1); }
-                           memcpy (iface->buffer,ptr,len);                      
-                           break; 
+                           memcpy (iface->buffer,ptr,len);
+                           break;
         case CALC_APPEND : len = ItLeng (iface->handle);
-                           ptr = ItAppLine (iface->handle);  
+                           ptr = ItAppLine (iface->handle);
                            /* check and exit */ if (!ptr) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItAppLine() error, __cal_table()"); return (-1); }
-                           memcpy (ptr,iface->buffer,len);   
+                           memcpy (ptr,iface->buffer,len);
                            iface->is_set = 1;
-                           break; 
+                           break;
         case CALC_INSERT : len = ItLeng (iface->handle);
-                           ptr = ItInsLine (iface->handle, index);  
+                           ptr = ItInsLine (iface->handle, index);
                            /* check and exit */ if (!ptr) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItInsLine() error, __cal_table()"); return (-1); }
-                           memcpy (ptr,iface->buffer,len);                      
+                           memcpy (ptr,iface->buffer,len);
                            iface->is_set = 1;
-                           break; 
+                           break;
         case CALC_MODIFY : if ( ItPutLine (iface->handle,index,iface->buffer) ) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItPutLine() error, __cal_table()") ; return (-1); }
-                           iface->is_set = 1; 
+                           iface->is_set = 1;
                            break;
         case CALC_REMOVE : if ( ItDelLine (iface->handle,index) ) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: ItDelLine() error, __cal_table()"); return (-1); }
                            iface->is_set = 1;
                            break;
         case CALC_LENGTH : return ( ItFill (iface->handle) );
-        case CALC_INIT   : ItFree (iface->handle); 
+        case CALC_INIT   : ItFree (iface->handle);
                            iface->is_set = 0;
                            break;
     }
@@ -709,15 +709,15 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
     ret = RFC_OK;
     import_max = cal_iface_count (fce,CALC_IMPORT);
     Importing = VCALLOC((import_max+1)*sizeof(RFC_PARAMETER));
-    
+
     if (Importing)
     {
-       i=0; 
+       i=0;
        for (j=0;j<import_max;j++)
        {
-         iface = cal_iface_get_index (fce,CALC_IMPORT,j); 
-         if (iface->is_set == 0 && iface->is_optional == 1) continue; 
-         count = cal_def_count (iface->def); 
+         iface = cal_iface_get_index (fce,CALC_IMPORT,j);
+         if (iface->is_set == 0 && iface->is_optional == 1) continue;
+         count = cal_def_count (iface->def);
          if (count == 1)
          {
             Importing[i].name = iface->name;
@@ -729,10 +729,10 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
          else
          {
             if (!iface->defarray)
-                iface->defarray = cal_def_array (iface->def,iface->num);  
+                iface->defarray = cal_def_array (iface->def,iface->num);
             rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
             if (rfc_rc)
-                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }             
+                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }
             Importing[i].name = iface->name;
             Importing[i].nlen = strlen (Importing[i].name);
             Importing[i].type = iface->typehandle;
@@ -744,19 +744,19 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __cal_fce_call()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __cal_fce_call()");
        ret = -1;
     }
-    
+
     export_max = cal_iface_count (fce,CALC_EXPORT);
     Exporting = VCALLOC((export_max+1)*sizeof(RFC_PARAMETER));
-    
+
     if (Exporting)
     {
        for (i=0;i<export_max;i++)
        {
-         iface = cal_iface_get_index (fce,CALC_EXPORT,i); 
-         count = cal_def_count (iface->def); 
+         iface = cal_iface_get_index (fce,CALC_EXPORT,i);
+         count = cal_def_count (iface->def);
          if (count == 1)
          {
             Exporting[i].name = iface->name;
@@ -768,10 +768,10 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
          else
          {
             if (!iface->defarray)
-                iface->defarray = cal_def_array (iface->def,iface->num);  
+                iface->defarray = cal_def_array (iface->def,iface->num);
             rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
             if (rfc_rc)
-                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }             
+                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }
             Exporting[i].name = iface->name;
             Exporting[i].nlen = strlen (Exporting[i].name);
             Exporting[i].type = iface->typehandle;
@@ -782,18 +782,18 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Exporting, __cal_fce_call()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Exporting, __cal_fce_call()");
        ret = -1;
     }
-    
+
     table_max = cal_iface_count (fce,CALC_TABLE);
     Tables = VCALLOC((table_max+1)*sizeof(RFC_TABLE));
-     
+
     if (Tables)
     {
        for (i=0;i<table_max; i++)
        {
-          iface = cal_iface_get_index (fce,CALC_TABLE,i); 
+          iface = cal_iface_get_index (fce,CALC_TABLE,i);
           Tables[i].name     = iface->name;
           Tables[i].nlen     = strlen (Tables[i].name);
           Tables[i].type     = iface->typehandle;
@@ -803,16 +803,16 @@ int __cal_fce_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __cal_fce_call()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __cal_fce_call()");
        ret = -1;
     }
-    
+
     if (ret == RFC_OK)
     {
-         rfc_rc = RfcCallReceive (rfc, fce->name, Importing, Exporting, Tables, &fce->exception); 
-         if (rfc_rc != RFC_OK) 
+         rfc_rc = RfcCallReceive (rfc, fce->name, Importing, Exporting, Tables, &fce->exception);
+         if (rfc_rc != RFC_OK)
          {
-             sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());            
+             sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
          }
 	 else
             fce->exception=NULL;
@@ -843,14 +843,14 @@ int __cal_fce_indirect_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, char *ti
     ret = RFC_OK;
     import_max = cal_iface_count (fce,CALC_IMPORT);
     Importing = VCALLOC((import_max+1)*sizeof(RFC_PARAMETER));
-    
+
     if (Importing)
     {
        for (i=0;i<import_max;i++)
        {
-         iface = cal_iface_get_index (fce,CALC_IMPORT,i); 
-         if (iface->is_set == 0 && iface->is_optional == 1) continue; 
-         count = cal_def_count (iface->def); 
+         iface = cal_iface_get_index (fce,CALC_IMPORT,i);
+         if (iface->is_set == 0 && iface->is_optional == 1) continue;
+         count = cal_def_count (iface->def);
          if (count == 1)
          {
             Importing[i].name = iface->name;
@@ -862,10 +862,10 @@ int __cal_fce_indirect_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, char *ti
          else
          {
             if (!iface->defarray)
-                iface->defarray = cal_def_array (iface->def,iface->num);  
+                iface->defarray = cal_def_array (iface->def,iface->num);
             rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
             if (rfc_rc)
-                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }             
+                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __cal_fce_call()",rfc_rc,iface->name); ret = -1; }
             Importing[i].name = iface->name;
             Importing[i].nlen = strlen (Importing[i].name);
             Importing[i].type = iface->typehandle;
@@ -876,18 +876,18 @@ int __cal_fce_indirect_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, char *ti
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __cal_fce_call()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __cal_fce_call()");
        ret = -1;
     }
-    
+
     table_max = cal_iface_count (fce,CALC_TABLE);
     Tables = VCALLOC((table_max+1)*sizeof(RFC_TABLE));
-     
+
     if (Tables)
     {
        for (i=0;i<table_max; i++)
        {
-          iface = cal_iface_get_index (fce,CALC_TABLE,i); 
+          iface = cal_iface_get_index (fce,CALC_TABLE,i);
           Tables[i].name     = iface->name;
           Tables[i].nlen     = strlen (Tables[i].name);
           Tables[i].type     = iface->typehandle;
@@ -897,18 +897,18 @@ int __cal_fce_indirect_call (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, char *ti
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __cal_fce_call()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __cal_fce_call()");
        ret = -1;
     }
-    
+
     if (ret == RFC_OK)
     {
-        
-         rfc_rc = RfcIndirectCallEx (rfc, fce->name, Importing, Tables, tid ); 
-         if (rfc_rc == RFC_OK) 
+
+         rfc_rc = RfcIndirectCallEx (rfc, fce->name, Importing, Tables, tid );
+         if (rfc_rc == RFC_OK)
              rfc_rc = RfcConfirmTransID (rfc,tid);
          else
-             sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());            
+             sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
          ret = rfc_rc;
 
     }
@@ -922,7 +922,7 @@ void __cal_del_fce (CALD_FUNCTION_MODULE *fce)
 {
     CALD_INTERFACE *p,*q;
     CALD_DEFINITION *p1, *q1;
- 
+
     if (!fce) return;
     p = fce->iface;
     while (p)
@@ -940,7 +940,7 @@ void __cal_del_fce (CALD_FUNCTION_MODULE *fce)
         if (p->buffer) VFREE(p->buffer);
         if (p->handle != ITAB_NULL) ItDelete (p->handle);
         VFREE(p);
-        p=q;     
+        p=q;
     }
     VFREE(fce);
 }
@@ -949,7 +949,7 @@ void __cal_del_fce (CALD_FUNCTION_MODULE *fce)
 void __cal_del_interface (CALD_INTERFACE_INFO *iinfo)
 {
    CALD_INTERFACE_INFO *p;
-   
+
    p = iinfo;
    while (p->name)
    {
@@ -965,48 +965,48 @@ void __cal_fce_discover_system_info (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
    int rv;
    char *sapversion;
    char *target_codepage;
-   
+
    f1 = CAL_NEW("RFC_SYSTEM_INFO");
-   /* check and exit */ if (!f1)  return; 
- 
+   /* check and exit */ if (!f1)  return;
+
    CAL_INTERFACE_EXPORT(f1,"CURRENT_RESOURCES",CAL_DEF_ELEMENT_INT());
-  
- /* Parameters  DIALOG_USER_TYPE and RFC_LOGIN_COMPLETE don't exist 
+
+ /* Parameters  DIALOG_USER_TYPE and RFC_LOGIN_COMPLETE don't exist
     in interface RFC_SYSTEM_INFO under SAP BASIS 6.40 */
-    
+
    CAL_INTERFACE_EXPORT(f1,"DIALOG_USER_TYPE",CAL_DEF_ELEMENT_CHAR(1));
    CAL_INTERFACE_EXPORT(f1,"MAXIMAL_RESOURCES",CAL_DEF_ELEMENT_INT());
    CAL_INTERFACE_EXPORT(f1,"RECOMMENDED_DELAY",CAL_DEF_ELEMENT_INT());
    CAL_INTERFACE_EXPORT(f1,"RFC_LOGIN_COMPLETE",CAL_DEF_ELEMENT_CHAR(1));
-   
+
    CAL_INTERFACE_EXPORT(f1,"RFCSI_EXPORT",CAL_DEF_STRUCTPART_CHAR("RFCPROTO",3));
    CAL_INTERFACE_EXPORT(f1,"RFCSI_EXPORT",CAL_DEF_STRUCTPART_CHAR("RFCCHARTYP",4));
    CAL_INTERFACE_EXPORT(f1,"RFCSI_EXPORT",CAL_DEF_STRUCTPART_CHAR("__PREFIX",104));
    CAL_INTERFACE_EXPORT(f1,"RFCSI_EXPORT",CAL_DEF_STRUCTPART_CHAR("RFCSAPRL",4));
    CAL_INTERFACE_EXPORT(f1,"RFCSI_EXPORT",CAL_DEF_STRUCTPART_CHAR("__POSTFIX",85));
-  
-  
+
+
    CAL_SET_EXPORT(f1,"CURRENT_RESOURCES","");
    CAL_SET_EXPORT(f1,"DIALOG_USER_TYPE","");
    CAL_SET_EXPORT(f1,"MAXIMAL_RESOURCES","");
    CAL_SET_EXPORT(f1,"RECOMMENDED_DELAY","");
    CAL_SET_EXPORT(f1,"RFC_LOGIN_COMPLETE","");
-   
+
    CAL_SET_EXPORT_STRUCT(f1,"RFCSI_EXPORT","RFCPROTO","");
    CAL_SET_EXPORT_STRUCT(f1,"RFCSI_EXPORT","RFCCHARTYP","");
    CAL_SET_EXPORT_STRUCT(f1,"RFCSI_EXPORT","__PREFIX","");
    CAL_SET_EXPORT_STRUCT(f1,"RFCSI_EXPORT","RFCSAPRL","");
    CAL_SET_EXPORT_STRUCT(f1,"RFCSI_EXPORT","__POSTFIX","");
-   
+
    rv = CAL_CALL(f1,rfc);
    /* check and exit */
    if ( rv ) { CAL_DELETE(f1); return; }
 
    sapversion = CAL_GET_EXPORT_STRUCT (f1,"RFCSI_EXPORT","RFCSAPRL");
    target_codepage = CAL_GET_EXPORT_STRUCT (f1,"RFCSI_EXPORT","RFCCHARTYP");
-     
-   strsafecpy (fce->rfcsaprl,sapversion,strlen(sapversion)); 
-   /* if target SAP system is >= 6.10 and has default code page 4103 or 4102, 
+
+   strsafecpy (fce->rfcsaprl,sapversion,strlen(sapversion));
+   /* if target SAP system is >= 6.10 and has default code page 4103 or 4102,
       it's UNICODE system */
    if ( target_codepage[0] == '4' &&
         target_codepage[1] == '1' &&
@@ -1014,7 +1014,7 @@ void __cal_fce_discover_system_info (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
         ( target_codepage[3] == '2' || target_codepage[3] == '3') &&
         FEATURE_UNICODE(sapversion)
       ) fce->unicode = 1;
-   
+
    CAL_DELETE(f1);
    return;
 }
@@ -1027,18 +1027,18 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
    char *fieldname, *intlength, *decimals, *exid, *offset;
    char abap;
    unsigned len, dec;
-   
+
    INIT_ERROR_MESSAGE();
 
-   
+
    if (fce->unicode == 0) {
-   
+
     /* On non-unicode SAP system use RFC_GET_STRUCTURE_DEFINITION_P for discovering
       structure */
-   
+
     f1 = CAL_NEW("RFC_GET_STRUCTURE_DEFINITION_P");
     /* check and exit */ if (!f1) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for f1, __cal_discover_structure()"); return (-1); }
-  
+
     if ( FEATURE_3x_COMPATIBILITY(fce->rfcsaprl) )
     {
       CAL_INTERFACE_IMPORT(f1,"TABNAME",CAL_DEF_ELEMENT_CHAR(10));
@@ -1058,11 +1058,11 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_NUM("INTLENGTH",6));
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_NUM("DECIMALS",6));
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_CHAR("EXID",1));
-   
+
     CAL_SET_IMPORT(f1,"TABNAME",structure);
     CAL_SET_EXPORT(f1,"TABLENGTH","");
     CAL_TBL_INIT(f1,"FIELDS");
-   
+
     rv = CAL_CALL(f1,rfc);
     /* check and exit */
     if ( rv ) { CAL_DELETE(f1); return (-1); }
@@ -1079,22 +1079,22 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
           exid = CAL_GET_TABLE(f1,"FIELDS","EXID");
 
           strtoupper(fieldname);
-          abap = *exid;              
+          abap = *exid;
           len = atoi (intlength);
           dec = atoi (decimals);
           fce->par_offset = atoi(offset);
           __cal_fce_interface (fce,type,name,fieldname,abap,len,dec);
           fce->par_offset = -1;
-      } 
+      }
     }
    } else  {
-   
+
     /* On unicode SAP system use RFC_GET_UNICODE_STRUCTURE for discovering
       structure */
-   
+
     f1 = CAL_NEW("RFC_GET_UNICODE_STRUCTURE");
     /* check and exit */ if (!f1) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for f1, __cal_discover_structure()"); return (-1); }
-  
+
     CAL_INTERFACE_IMPORT(f1,"TABNAME",CAL_DEF_ELEMENT_CHAR(30));
     CAL_INTERFACE_IMPORT(f1,"ALLOW_HALF_DEEP",CAL_DEF_ELEMENT_CHAR(1));
     CAL_INTERFACE_IMPORT(f1,"SKIP_UTF16_INFO",CAL_DEF_ELEMENT_CHAR(1));
@@ -1115,7 +1115,7 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_INT("LENGTH_B2"));
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_INT("OFFSET_B4"));
     CAL_INTERFACE_TABLE(f1,"FIELDS",CAL_DEF_STRUCTPART_INT("LENGTH_B4"));
-   
+
     CAL_SET_IMPORT(f1,"TABNAME",structure);
     CAL_SET_IMPORT(f1,"ALLOW_HALF_DEEP","X");
     CAL_SET_IMPORT(f1,"SKIP_UTF16_INFO","X");
@@ -1126,7 +1126,7 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
     CAL_SET_EXPORT(f1,"CHAR_LENGTH","0");
     CAL_SET_EXPORT(f1,"UUID","");
     CAL_TBL_INIT(f1,"FIELDS");
-   
+
     rv = CAL_CALL(f1,rfc);
     /* check and exit */
     if ( rv ) { CAL_DELETE(f1); return (-1); }
@@ -1143,13 +1143,13 @@ int __cal_fce_discover_structure (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc, int
           exid = CAL_GET_TABLE(f1,"FIELDS","EXID");
 
           strtoupper(fieldname);
-          abap = *exid;              
+          abap = *exid;
           len = atoi (intlength);
           dec = atoi (decimals);
           fce->par_offset = atoi(offset);
           __cal_fce_interface (fce,type,name,fieldname,abap,len,dec);
           fce->par_offset = -1;
-      } 
+      }
     }
    }
 
@@ -1173,12 +1173,12 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
    __cal_fce_discover_system_info (fce,rfc);
    f1 = CAL_NEW("RFC_GET_FUNCTION_INTERFACE_P");
    /* check and exit */ if (!f1) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for f1, __cal_discover_interface()"); return (-1); }
-  
+
    CAL_INTERFACE_IMPORT(f1,"FUNCNAME",CAL_DEF_ELEMENT_CHAR(30));
    /* added support for target Unicode system */
    if ( fce->unicode )
           CAL_INTERFACE_IMPORT(f1,"NONE_UNICODE_LENGTH",CAL_DEF_ELEMENT_CHAR(1));
-       
+
    CAL_INTERFACE_TABLE(f1,"PARAMS_P",CAL_DEF_STRUCTPART_CHAR("PARAMCLASS",1));
    CAL_INTERFACE_TABLE(f1,"PARAMS_P",CAL_DEF_STRUCTPART_CHAR("PARAMETER",30));
    if ( FEATURE_3x_COMPATIBILITY(fce->rfcsaprl) )
@@ -1200,13 +1200,13 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
    CAL_INTERFACE_TABLE(f1,"PARAMS_P",CAL_DEF_STRUCTPART_CHAR("PARAMTEXT",79));
    if ( FEATURE_OPTIONAL_PARAM(fce->rfcsaprl) )
         CAL_INTERFACE_TABLE(f1,"PARAMS_P",CAL_DEF_STRUCTPART_CHAR("OPTIONAL",1));  /* in SAP 4.0B unsupported*/
-  
+
    CAL_SET_IMPORT(f1,"FUNCNAME",fce->name);
    /* added support for target Unicode system */
    if ( fce->unicode )
           CAL_SET_IMPORT(f1,"NONE_UNICODE_LENGTH","X");
    CAL_TBL_INIT(f1,"PARAMS_P");
-     
+
    rv = CAL_CALL(f1,rfc);
    /* check and exit */
    if ( rv ) { CAL_DELETE(f1); return (-1); }
@@ -1224,7 +1224,7 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
           intlength = CAL_GET_TABLE(f1,"PARAMS_P","INTLENGTH");
           decimals = CAL_GET_TABLE(f1,"PARAMS_P","DECIMALS");
           if ( FEATURE_OPTIONAL_PARAM(fce->rfcsaprl) )
-             optional = CAL_GET_TABLE(f1,"PARAMS_P","OPTIONAL"); 
+             optional = CAL_GET_TABLE(f1,"PARAMS_P","OPTIONAL");
           else
              optional = "";
           switch (toupper(*pclass))
@@ -1237,10 +1237,10 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
           strtoupper (parameter);
 	  if (*exid == 'h') continue;
 	   /*
-	       I don't know how handle type 'h' (internal table) 
+	       I don't know how handle type 'h' (internal table)
 	       with RFC API. Therefore ignore it.
 	   */
-          else if ( *exid!=0 && *exid!='u')   
+          else if ( *exid!=0 && *exid!='u')
 	  {
               abap = *exid;              /* elementary type */
               len = atoi (intlength);
@@ -1249,7 +1249,7 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
               __cal_set (fce,type,parameter,"","");
               iface = cal_iface_find (fce,parameter,type);
               iface->is_set = 0;
-              if ( *optional=='X' ) __cal_fce_optional (fce,type,parameter,1); 
+              if ( *optional=='X' ) __cal_fce_optional (fce,type,parameter,1);
           }
           else if (type != CALC_UNDEF)
           {                              /* structure */
@@ -1260,13 +1260,13 @@ int __cal_fce_discover_interface (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
               else
               {
                    iface = cal_iface_find (fce,parameter,type);
-                   if ( !iface->buffer ) 
+                   if ( !iface->buffer )
                        iface->buffer = VCALLOC(iface->buflen);
-                   if ( iface->buffer ) 
+                   if ( iface->buffer )
                        cal_iface_init_buffer (iface);
               }
           }
-      } 
+      }
    }
    CAL_DELETE(f1);
    return (0);
@@ -1287,24 +1287,24 @@ int __cal_fce_optional (CALD_FUNCTION_MODULE *fce, int type, char *name, int opt
 void __cal_fce_init_interface (CALD_FUNCTION_MODULE *fce, int type)
 {
    CALD_INTERFACE *iface;
- 
+
    INIT_ERROR_MESSAGE();
    iface = fce->iface;
    while (iface)
    {
      if (iface->type == type || type == CALC_UNDEF)
-     {	 
+     {
        if (iface->type == CALC_TABLE)
           CAL_TBL_INIT(fce,iface->name);
        else
        {
-         if ( !iface->buffer ) 
+         if ( !iface->buffer )
             iface->buffer = VCALLOC(iface->buflen);
-         if ( iface->buffer ) 
+         if ( iface->buffer )
             cal_iface_init_buffer (iface);
        }
      }
-     iface = iface->next;  
+     iface = iface->next;
    }
 }
 
@@ -1316,12 +1316,12 @@ int __cal_fce_refresh_internal_buffer (CALD_FUNCTION_MODULE *fce, char *name, in
    /* check and exit */  if (!fce || !name) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Null parameter name or fce, __cal_refresh_internal_buffer()"); return (-1); }
    iface = cal_iface_find (fce,name,type);
    /* check and exit */  if (!iface) { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Can't find interface name %s, __cal_refresh_internal_buffer()",name); return (-1); }
-   if ( !iface->buffer ) 
+   if ( !iface->buffer )
         iface->buffer = VCALLOC(iface->buflen);
-   if ( iface->buffer ) 
+   if ( iface->buffer )
         cal_iface_init_buffer (iface);
    else
-   { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for buffer, __cal_refresh_internal_buffer()"); return (-1); }        
+   { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for buffer, __cal_refresh_internal_buffer()"); return (-1); }
 
    return (0);
 
@@ -1387,7 +1387,7 @@ char *__cal_lib_version ()
    RfcGetAllLibVersions(RFC_LIBVERSION_INFO,sizeof(RFC_LIBVERSION_INFO));
    return (RFC_LIBVERSION_INFO);
 }
-    
+
 
 void __cal_install_enviroment (void)
 {
@@ -1419,19 +1419,19 @@ int __sal_get_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     int count;
 
     INIT_ERROR_MESSAGE();
-    
+
     /* check and exit */ if (!fce) { sprintf(CAL_LAST_ERROR_MESSAGE, "CALDBG: Null parameter fce, __sal_get_data()"); return (-1); }
 
     ret = 0;
     import_max = cal_iface_count (fce,CALC_IMPORT);
     Importing = VCALLOC((import_max+1)*sizeof(RFC_PARAMETER));
-    
+
     if (Importing)
     {
        for (i=0;i<import_max;i++)
        {
-         iface = cal_iface_get_index (fce,CALC_IMPORT,i); 
-         count = cal_def_count (iface->def); 
+         iface = cal_iface_get_index (fce,CALC_IMPORT,i);
+         count = cal_def_count (iface->def);
          if (count == 1)
          {
             Importing[i].name = iface->name;
@@ -1443,10 +1443,10 @@ int __sal_get_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
          else
          {
             if (!iface->defarray)
-                iface->defarray = cal_def_array (iface->def,iface->num);  
+                iface->defarray = cal_def_array (iface->def,iface->num);
             rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
             if (rfc_rc)
-                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __sal_get_data()",rfc_rc,iface->name); ret = -1; }             
+                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __sal_get_data()",rfc_rc,iface->name); ret = -1; }
             Importing[i].name = iface->name;
             Importing[i].nlen = strlen (Importing[i].name);
             Importing[i].type = iface->typehandle;
@@ -1457,19 +1457,19 @@ int __sal_get_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __sal_get_data()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Importing, __sal_get_data()");
        ret = -1;
     }
-    
+
     table_max = cal_iface_count (fce,CALC_TABLE);
     Tables = VCALLOC((table_max+1)*sizeof(RFC_TABLE));
-     
+
     if (Tables)
     {
        for (i=0;i<table_max; i++)
        {
           /* Drop itab handle, get handle from RfcGetData() */
-          iface = cal_iface_get_index (fce,CALC_TABLE,i); 
+          iface = cal_iface_get_index (fce,CALC_TABLE,i);
           if (iface->handle != ITAB_NULL)
           {
               ItFree (iface->handle);
@@ -1485,22 +1485,22 @@ int __sal_get_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_get_data()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_get_data()");
        ret = -1;
     }
-    
+
     if (ret == 0)
     {
-         rfc_rc = RfcGetData (rfc, Importing, Tables); 
-         if (rfc_rc != RFC_OK) 
+         rfc_rc = RfcGetData (rfc, Importing, Tables);
+         if (rfc_rc != RFC_OK)
             sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
          else
          {
             for (i=0;i<table_max; i++)
             {
                /* Set new itab handle from RfcGetData() */
-               iface = cal_iface_get_index (fce,CALC_TABLE,i); 
-               iface->handle = Tables[i].ithandle; 
+               iface = cal_iface_get_index (fce,CALC_TABLE,i);
+               iface->handle = Tables[i].ithandle;
                /* iface->handle can be null, if internal table is not passed by caller */
                /* don't create handle in __cal_table(), because this is memory leak */
                iface->is_rfcgetdata_table = 1;
@@ -1527,19 +1527,19 @@ int __sal_send_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     int count;
 
     INIT_ERROR_MESSAGE();
-    
+
     /* check and exit */ if (!fce) { sprintf(CAL_LAST_ERROR_MESSAGE, "CALDBG: Null parameter fce, __sal_send_data()"); return (-1); }
 
     ret = 0;
     export_max = cal_iface_count (fce,CALC_EXPORT);
     Exporting = VCALLOC((export_max+1)*sizeof(RFC_PARAMETER));
-    
+
     if (Exporting)
     {
        for (i=0;i<export_max;i++)
        {
-         iface = cal_iface_get_index (fce,CALC_EXPORT,i); 
-         count = cal_def_count (iface->def); 
+         iface = cal_iface_get_index (fce,CALC_EXPORT,i);
+         count = cal_def_count (iface->def);
          if (count == 1)
          {
             Exporting[i].name = iface->name;
@@ -1551,10 +1551,10 @@ int __sal_send_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
          else
          {
             if (!iface->defarray)
-                iface->defarray = cal_def_array (iface->def,iface->num);  
+                iface->defarray = cal_def_array (iface->def,iface->num);
             rfc_rc = RfcInstallStructure (iface->name,iface->defarray,iface->num,&iface->typehandle);
             if (rfc_rc)
-                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __sal_send_data()",rfc_rc,iface->name); ret = -1; }             
+                { sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: RfcInstallStructure() error #%d for %s, __sal_send_data()",rfc_rc,iface->name); ret = -1; }
             Exporting[i].name = iface->name;
             Exporting[i].nlen = strlen (Exporting[i].name);
             Exporting[i].type = iface->typehandle;
@@ -1565,19 +1565,19 @@ int __sal_send_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Exporting, __sal_send_data()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Exporting, __sal_send_data()");
        ret = -1;
     }
-    
+
     table_max = cal_iface_count (fce,CALC_TABLE);
     Tables = VCALLOC((table_max+1)*sizeof(RFC_TABLE));
-     
+
     if (Tables)
-    {  
-       j=0; 
+    {
+       j=0;
        for (i=0;i<table_max; i++)
        {
-          iface = cal_iface_get_index (fce,CALC_TABLE,i); 
+          iface = cal_iface_get_index (fce,CALC_TABLE,i);
           if (iface->handle != ITAB_NULL )
           {
              Tables[j].name     = iface->name;
@@ -1591,14 +1591,14 @@ int __sal_send_data (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce)
     }
     else
     {
-       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_send_data()");             
+       sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_send_data()");
        ret = -1;
     }
-    
+
     if (ret == 0)
     {
-         rfc_rc = RfcSendData (rfc, Exporting, Tables); 
-         if (rfc_rc != RFC_OK) 
+         rfc_rc = RfcSendData (rfc, Exporting, Tables);
+         if (rfc_rc != RFC_OK)
              sprintf(CAL_LAST_ERROR_MESSAGE,"%s",CAL_RFC_LAST_ERROR());
          ret = rfc_rc;
     }
@@ -1616,9 +1616,9 @@ int __sal_raise (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce, char *exception)
     int ret;
     RFC_TABLE *Tables;
     int table_max;
-    
+
     INIT_ERROR_MESSAGE();
-    
+
     /* check and exit */ if (!fce || !exception) { sprintf(CAL_LAST_ERROR_MESSAGE, "CALDBG: Null parameter fce, __sal_send_data()"); return (-1); }
 
     ret = 0;
@@ -1630,12 +1630,12 @@ int __sal_raise (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce, char *exception)
     else
     {
        Tables = VCALLOC((table_max+1)*sizeof(RFC_TABLE));
-     
+
        if (Tables)
        {
            for (i=0;i<table_max; i++)
            {
-               iface = cal_iface_get_index (fce,CALC_TABLE,i); 
+               iface = cal_iface_get_index (fce,CALC_TABLE,i);
                Tables[i].name     = iface->name;
                Tables[i].nlen     = strlen (Tables[i].name);
                Tables[i].type     = iface->typehandle;
@@ -1646,7 +1646,7 @@ int __sal_raise (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce, char *exception)
         }
         else
         {
-           sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_raise()");             
+           sprintf(CAL_LAST_ERROR_MESSAGE,"CALDBG: Memory allocation error for Tables, __sal_raise()");
            ret = -1;
         }
     }
@@ -1654,14 +1654,14 @@ int __sal_raise (RFC_HANDLE rfc, CALD_FUNCTION_MODULE *fce, char *exception)
 }
 
 /*  set is_rawstr = 1 for TYPC parameters of interface */
-void __cal_set_rawstr (CALD_FUNCTION_MODULE *fce) 
+void __cal_set_rawstr (CALD_FUNCTION_MODULE *fce)
 {
     CALD_DEFINITION *p;
     CALD_INTERFACE *iface;
 
     iface = fce->iface;
     while (iface)
-    { 
+    {
       p = iface->def;
       while (p)
       {
