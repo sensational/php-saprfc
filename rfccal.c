@@ -712,14 +712,18 @@ int __call_with_timeout(long timeout, RFC_HANDLE handle, rfc_char_t *function, R
                 }
             } while ( (now < until) && (rfc_rc == RFC_RETRY) );
 
-            if( rfc_rc != RFC_OK ){
+            if( rfc_rc == RFC_RETRY ){
+                rfc_rc = RfcCancel(handle, RFC_CANCEL_CLOSE);
                 return PHP_RFC_TIMEOUT_EXPIRED;
             }
         }
-        rfc_rc = RfcReceive(handle, importing, tables, exception);
+        if (rfc_rc == RFC_OK)
+            rfc_rc = RfcReceive(handle, importing, tables, exception);
+
     }else{
         exception = NULL;
     }
+
     return rfc_rc;
 }
 
