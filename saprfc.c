@@ -523,6 +523,8 @@ PHP_FUNCTION(saprfc_open)
     if ( rfc == RFC_HANDLE_NULL )
     {
         php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
+
+        efree(buffer);
         RETURN_FALSE;
     }
 
