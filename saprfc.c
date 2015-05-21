@@ -129,6 +129,9 @@ static void _free_resource_rfc(zend_rsrc_list_entry *rsrc TSRMLS_DC)
     RFC_RESOURCE *rfc_resource = (RFC_RESOURCE *)rsrc->ptr;
 
     CAL_CLOSE(rfc_resource->handle);
+    if (rfc_resource->connection_string != NULL)
+        efree(rfc_resource->connection_string);
+
     efree (rfc_resource);
 }
 
@@ -516,7 +519,6 @@ PHP_FUNCTION(saprfc_open)
     }
 
     rfc = CAL_OPEN (buffer);
-    if (buffer) efree (buffer);
 
     if ( rfc == RFC_HANDLE_NULL )
     {
@@ -527,8 +529,13 @@ PHP_FUNCTION(saprfc_open)
     rfc_resource = (RFC_RESOURCE *) emalloc (sizeof(RFC_RESOURCE));
     if (rfc_resource)
     {
+        rfc_resource->connection_string = buffer;
         rfc_resource->handle = rfc;
         rfc_resource->client = 1;
+    }
+    else
+    {
+        efree(buffer);
     }
 
     ZEND_REGISTER_RESOURCE(return_value, rfc_resource, le_rfc);
@@ -585,6 +592,7 @@ PHP_FUNCTION(saprfc_function_discover)
          if (fce_resource)
          {
              fce_resource->handle = rfc_resource->handle;
+             fce_resource->rfc_resource = rfc_resource;
              if (not_trim_flag == 1) CAL_SET_RAWSTR(fce);
              fce_resource->fce = fce;
          }
@@ -756,6 +764,7 @@ PHP_FUNCTION(saprfc_function_define)
                  fce_resource->handle = rfc_resource->handle;
              if (not_trim_flag == 1) CAL_SET_RAWSTR(fce);
              fce_resource->fce = fce;
+             fce_resource->rfc_resource = rfc_resource;
          }
          else
          {
@@ -1608,6 +1617,8 @@ PHP_FUNCTION(saprfc_call_and_receive)
     zval *fce;
     FCE_RESOURCE *fce_resource;
     RFC_RC rfc_rc;
+    RFC_HANDLE new_handle;
+
     long timeout = -1;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &fce, &timeout) == FAILURE){
@@ -1624,6 +1635,19 @@ PHP_FUNCTION(saprfc_call_and_receive)
        {
             if (rfc_rc == PHP_RFC_TIMEOUT_EXPIRED){
                 php_error(E_WARNING, "Requested timeout has expired");
+
+                CAL_CLOSE(fce_resource->rfc_resource->handle);
+                new_handle = CAL_OPEN (fce_resource->rfc_resource->connection_string);
+
+                if ( new_handle == RFC_HANDLE_NULL )
+                {
+                    php_error(E_ERROR, "Error while reconnecting: %s", CAL_DEBUG_MESSAGE());
+                    RETURN_LONG(RFC_FAILURE);
+                }
+                else
+                {
+                    fce_resource->rfc_resource->handle = new_handle;
+                }
             }
             else
             {
@@ -1717,7 +1741,13 @@ PHP_FUNCTION(saprfc_close)
 
     rfc_resource = (RFC_RESOURCE *) zend_list_find (Z_RESVAL_P(*rfc),&type);
     if (rfc_resource && type == le_rfc)
+    {
+        if (rfc_resource->connection_string != NULL){
+            efree(rfc_resource->connection_string);
+            rfc_resource->connection_string = NULL;
+        }
         zend_list_delete (Z_RESVAL_P(*rfc));
+    }
     else
     {
         php_error(E_WARNING, "Invalid resource for RFC connection");

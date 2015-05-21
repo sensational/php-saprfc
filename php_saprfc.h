@@ -112,11 +112,13 @@ ZEND_END_MODULE_GLOBALS(saprfc)
 typedef struct {
    RFC_HANDLE handle;
    int client;
+   char *connection_string;
 } RFC_RESOURCE;
 #define PHP_RFC_RES_NAME "saprfc handle"
 
 typedef struct {
    RFC_HANDLE handle;
+   RFC_RESOURCE *rfc_resource;
    CALD_FUNCTION_MODULE *fce;
 } FCE_RESOURCE;
 #define PHP_RFC_FUNC_RES_NAME "saprfc function module"
