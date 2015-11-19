@@ -27,8 +27,8 @@
 #include "php_saprfc.h"
 #include "ext/standard/info.h"
 
-#define  SAPRFC_VERSION  "1.4.2-sensational"
-#define  SAPRFC_RELEASE  "2015/05/21"
+#define  SAPRFC_VERSION  "1.5.0-sensational"
+#define  SAPRFC_RELEASE  "2015/11/19"
 
 /* Compatibility with PHP 4.0.6 */
 #if ZEND_MODULE_API_NO < 20010901
