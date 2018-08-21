@@ -21,14 +21,16 @@
 #include "config.h"
 #endif
 
+#include <pthread.h>
+
 #include "php.h"
 #include "php_ini.h"
 #include "php_globals.h"
 #include "php_saprfc.h"
 #include "ext/standard/info.h"
 
-#define  SAPRFC_VERSION  "1.5.0-sensational"
-#define  SAPRFC_RELEASE  "2015/11/19"
+#define  SAPRFC_VERSION  "1.5.1-sensational"
+#define  SAPRFC_RELEASE  "2018/08/22"
 
 /* Compatibility with PHP 4.0.6 */
 #if ZEND_MODULE_API_NO < 20010901
@@ -104,6 +106,11 @@ zend_module_entry saprfc_module_entry = {
 #ifdef COMPILE_DL_SAPRFC
 ZEND_GET_MODULE(saprfc)
 #endif
+
+#define NS_IN_S 1000000000
+#define US_IN_S 1000000
+#define NS_IN_US 1000
+
 
 static char *strtoupper (char *s)
 {
@@ -467,6 +474,115 @@ PHP_MINFO_FUNCTION(saprfc)
     */
 }
 
+struct thread_info_t
+{
+    pthread_t thread_id;
+    pthread_cond_t condition;
+    pthread_mutex_t mutex;
+    char* buffer;
+};
+
+void *worker_thread(void *data)
+{
+    int res;
+    struct thread_info_t *thread_info = (struct thread_info_t *) data;
+
+
+    if (pthread_mutex_lock(&(thread_info->mutex))) return NULL;
+
+    int oldtype;
+    if (pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype)) return NULL;
+
+    if (pthread_mutex_unlock(&(thread_info->mutex))) return NULL;
+
+    RFC_HANDLE h = CAL_OPEN(thread_info->buffer);
+
+    if (pthread_mutex_lock(&(thread_info->mutex))) {
+        if (h != RFC_HANDLE_NULL) CAL_CLOSE(h);
+        return NULL;
+    }
+
+    if (pthread_cond_signal(&(thread_info->condition))){
+        if (h != RFC_HANDLE_NULL) CAL_CLOSE(h);
+        return NULL;
+    }
+
+    if (pthread_mutex_unlock(&(thread_info->mutex))){
+        if (h != RFC_HANDLE_NULL) CAL_CLOSE(h);
+        return NULL;
+    }
+
+    return (void*)h;
+}
+
+RFC_HANDLE open_with_timeout(char* buffer, zend_long timeout){
+    struct thread_info_t thread_info;
+    pthread_cond_init(&thread_info.condition, NULL);
+    pthread_mutex_init(&thread_info.mutex, NULL);
+
+    const int lock_rv = pthread_mutex_lock(&thread_info.mutex);
+    if (lock_rv)
+    {
+        php_error(E_WARNING, "Failed to acquire mutex lock: %d", lock_rv);
+        return RFC_HANDLE_NULL;
+    }
+
+    thread_info.buffer = buffer;
+
+    const int create_rv = pthread_create(&(thread_info.thread_id), NULL, &worker_thread, (void *) &thread_info);
+    if (create_rv)
+    {
+        const int unlock_rv = pthread_mutex_unlock(&thread_info.mutex);
+        if (unlock_rv)
+        {
+            php_error(E_WARNING, "pthread_mutex_unlock: %d", unlock_rv);
+            return RFC_HANDLE_NULL;
+        }
+
+        php_error(E_WARNING, "pthread_create: %d", create_rv);
+        return RFC_HANDLE_NULL;
+    }
+    else
+    {
+        struct timespec max_wait = {0, 0};
+
+        const int gettime_rv = clock_gettime(CLOCK_REALTIME, &max_wait);
+        if (gettime_rv)
+        {
+            php_error(E_WARNING, "clock_gettime: %d", gettime_rv);
+            return RFC_HANDLE_NULL;
+        }
+
+        time_t sec = timeout/US_IN_S;
+        long nsec = (timeout - (sec*US_IN_S))*NS_IN_US;
+        max_wait.tv_sec += sec;
+        max_wait.tv_nsec += nsec;
+        long over = max_wait.tv_nsec / NS_IN_S;
+        if (over > 0){
+          max_wait.tv_sec += over;
+          max_wait.tv_nsec = max_wait.tv_nsec % NS_IN_S;
+        }
+
+        const int timed_wait_rv = pthread_cond_timedwait(&thread_info.condition, &thread_info.mutex, &max_wait);
+        if (timed_wait_rv == ETIMEDOUT){
+            pthread_cancel(thread_info.thread_id);
+            return PHP_RFC_TIMEOUT_EXPIRED;
+        }else if (timed_wait_rv){
+            php_error(E_WARNING, "pthread_cond_timedwait: %d", timed_wait_rv);
+            return RFC_HANDLE_NULL;
+        }
+
+        RFC_HANDLE rfc;
+        const int join_rv = pthread_join(thread_info.thread_id, &rfc);
+        if (join_rv)
+        {
+            php_error(E_WARNING, "pthread_join: %d", join_rv);
+            return RFC_HANDLE_NULL;
+        }else{
+            return rfc;
+        }
+    }
+}
 
 /* {{{ proto int saprfc_open(array conn)
  */
@@ -481,8 +597,9 @@ PHP_FUNCTION(saprfc_open)
     RFC_RESOURCE *rfc_resource;
     zend_string *string_key;
     ulong num_key;
+    zend_long timeout = -1;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &conn) == FAILURE){
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|l", &conn, &timeout) == FAILURE){
         RETURN_FALSE;
     }
 
@@ -505,12 +622,18 @@ PHP_FUNCTION(saprfc_open)
         }  ZEND_HASH_FOREACH_END();
     }
 
-    rfc = CAL_OPEN (buffer);
+    rfc = (timeout == -1)
+        ? CAL_OPEN(buffer)
+        : open_with_timeout(buffer, timeout);
+
+    if (rfc == PHP_RFC_TIMEOUT_EXPIRED){
+        efree(buffer);
+        RETURN_LONG(PHP_RFC_TIMEOUT_EXPIRED);
+    }
 
     if ( rfc == RFC_HANDLE_NULL )
     {
         php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
-
         efree(buffer);
         RETURN_FALSE;
     }
