@@ -899,22 +899,13 @@ PHP_FUNCTION(saprfc_function_interface)
          php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
          RETURN_FALSE;
       }
-      if (array_init(return_value) == FAILURE)
-      {
-         php_error (E_WARNING,"array_init failed");
-         CAL_DEL_INTERFACE(iinfo);
-         RETURN_FALSE;
-      }
+      array_init(return_value);
       i=0;
       while ( iinfo[i].name != NULL )
       {
          MAKE_STD_ZVAL(param);
-         if (array_init(param) == FAILURE)
-         {
-             php_error (E_WARNING,"array_init failed");
-             CAL_DEL_INTERFACE(iinfo);
-             RETURN_FALSE;
-         }
+         array_init(param);
+
          add_assoc_string (param,"name",iinfo[i].name);
          switch (iinfo[i].type) {
            case CALC_IMPORT : add_assoc_string (param,"type","IMPORT"); break;
@@ -924,21 +915,12 @@ PHP_FUNCTION(saprfc_function_interface)
          }
          add_assoc_long (param,"optional",iinfo[i].is_optional);
          MAKE_STD_ZVAL(def);
-         if (array_init(def) == FAILURE)
-         {
-            php_error (E_WARNING,"array_init failed");
-            CAL_DEL_INTERFACE(iinfo);
-            RETURN_FALSE;
-         }
+
+         array_init(def);
          for (j=0; j<iinfo[i].size; j++)
          {
             MAKE_STD_ZVAL(item);
-            if (array_init(item) == FAILURE)
-            {
-                php_error (E_WARNING,"array_init failed");
-                CAL_DEL_INTERFACE(iinfo);
-                RETURN_FALSE;
-            }
+            array_init(item);
             add_assoc_string(item,"name",iinfo[i].typeinfo[j].name);
             abap_tmp[0]=iinfo[i].typeinfo[j].abap;
             abap_tmp[1]=0;
@@ -1253,12 +1235,7 @@ PHP_FUNCTION(saprfc_export)
         }
         if ( strcmp (iinfo->typeinfo[0].name,"") != 0 ) /* structure */
         {
-            if (array_init(return_value) == FAILURE)
-            {
-                php_error (E_WARNING,"array_init failed");
-                CAL_DEL_INTERFACE(iinfo);
-                RETURN_FALSE;
-            }
+            array_init(return_value);
             for (i=0; i<iinfo->size; i++)
             {
                  if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
@@ -1647,12 +1624,7 @@ PHP_FUNCTION(saprfc_table_read)
             php_error(E_WARNING, "%s", CAL_DEBUG_MESSAGE());
             RETURN_FALSE;
         }
-        if (array_init(return_value) == FAILURE)
-        {
-            php_error (E_WARNING,"array_init failed");
-            CAL_DEL_INTERFACE(iinfo);
-            RETURN_FALSE;
-        }
+        array_init(return_value);
         for (i=0; i<iinfo->size; i++)
         {
             if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
@@ -1910,11 +1882,7 @@ PHP_FUNCTION(saprfc_attributes)
          RETURN_FALSE;
       }
 
-      if (array_init(return_value) == FAILURE)
-      {
-         php_error (E_WARNING,"array_init failed");
-         RETURN_FALSE;
-      }
+      array_init(return_value);
 
       add_assoc_string(return_value,"dest",attributes.dest);
       add_assoc_string(return_value,"own_host",attributes.own_host);
@@ -2034,12 +2002,7 @@ PHP_FUNCTION(saprfc_server_import)
         }
         if ( strcmp (iinfo->typeinfo[0].name,"") != 0 ) /* structure */
         {
-            if (array_init(return_value) == FAILURE)
-            {
-                php_error (E_WARNING,"array_init failed");
-                CAL_DEL_INTERFACE(iinfo);
-                RETURN_FALSE;
-            }
+            array_init(return_value);
             for (i=0; i<iinfo->size; i++)
             {
                  if ( iinfo->typeinfo[i].abap == 'X' ) /* special handling for RAW type */
@@ -2464,11 +2427,7 @@ PHP_FUNCTION(saprfc_server_register_check)
         RETURN_LONG (rfc_rc);
     }
 
-    if (array_init(return_value) == FAILURE)
-    {
-         php_error (E_WARNING,"array_init failed");
-         RETURN_LONG (-1);
-    }
+    array_init(return_value);
 
     add_assoc_long(return_value, "ntotal", ntotal);
     add_assoc_long(return_value, "ninit", ninit);
@@ -2499,11 +2458,7 @@ PHP_FUNCTION(saprfc_server_register_cancel)
         RETURN_LONG (rfc_rc);
     }
 
-    if (array_init(return_value) == FAILURE)
-    {
-         php_error (E_WARNING,"array_init failed");
-         RETURN_LONG (-1);
-    }
+    array_init(return_value);
 
     add_assoc_long(return_value, "ntotal", ntotal);
     add_assoc_long(return_value, "ncancel", ncancel);
