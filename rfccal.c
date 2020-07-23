@@ -713,7 +713,7 @@ int __call_with_timeout(long timeout, RFC_HANDLE handle, rfc_char_t *function, R
             } while ( (now < until) && (rfc_rc == RFC_RETRY) );
 
             if( rfc_rc == RFC_RETRY ){
-                rfc_rc = RfcCancel(handle, RFC_CANCEL_CLOSE);
+                CAL_CLOSE(handle);
                 return PHP_RFC_TIMEOUT_EXPIRED;
             }
         }
