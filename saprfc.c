@@ -1971,7 +1971,7 @@ PHP_FUNCTION(saprfc_server_accept)
         rfc_resource->client = 0;
     }
 
-    RETURN_RES(zend_register_resource(rfc_resource, le_rfc))
+    RETURN_RES(zend_register_resource(rfc_resource, le_rfc));
 }
 /* }}} */
 
