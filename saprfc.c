@@ -512,7 +512,7 @@ void *worker_thread(void *data)
         return NULL;
     }
 
-    return (void*)h;
+    return (void*)(uintptr_t)h;
 }
 
 RFC_HANDLE open_with_timeout(char* buffer, zend_long timeout){
@@ -572,14 +572,14 @@ RFC_HANDLE open_with_timeout(char* buffer, zend_long timeout){
             return RFC_HANDLE_NULL;
         }
 
-        RFC_HANDLE rfc;
-        const int join_rv = pthread_join(thread_info.thread_id, &rfc);
+        uintptr_t rfc;
+        const int join_rv = pthread_join(thread_info.thread_id, (void*) &rfc);
         if (join_rv)
         {
             php_error(E_WARNING, "pthread_join: %d", join_rv);
             return RFC_HANDLE_NULL;
         }else{
-            return rfc;
+            return (RFC_HANDLE) rfc;
         }
     }
 }
