@@ -197,7 +197,7 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
     ZVAL_STRING(&callback_function,function_name);
     args[0] = callback_function;
 
-    if ( call_user_function_ex (EG(function_table), NULL, &callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
+    if ( call_user_function (EG(function_table), NULL, &callback_name, &callback_retval,1,args TSRMLS_CC) == SUCCESS )
     {
          /* get function handle */
          fce_resource = (FCE_RESOURCE *) (Z_RES(callback_retval)->ptr);
@@ -221,7 +221,7 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
                  ZVAL_STRING(&name,function_name);
                  args[0] = callback_retval;
 
-                 if ( call_user_function_ex (EG(function_table), NULL, &name, &retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
+                 if ( call_user_function (EG(function_table), NULL, &name, &retval,1,args TSRMLS_CC) == SUCCESS )
                  {
                     /* if return value is string, raise exception */
                     if (Z_TYPE(retval) == IS_STRING && Z_STRLEN(retval) > 0 )
@@ -292,7 +292,7 @@ static int DLL_CALL_BACK_FUNCTION __callback_tid_check(RFC_TID tid)
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
 
-        if ( call_user_function_ex (EG(function_table), NULL, &callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
+        if ( call_user_function (EG(function_table), NULL, &callback_name, &callback_retval,1,args TSRMLS_CC) == SUCCESS )
         {
             rc =  Z_LVAL(callback_retval);
         }
@@ -315,7 +315,7 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_commit(RFC_TID tid)
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
 
-        call_user_function_ex (EG(function_table), NULL, &callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
+        call_user_function (EG(function_table), NULL, &callback_name, &callback_retval,1,args TSRMLS_CC);
      }
 
 }
@@ -335,7 +335,7 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_rollback(RFC_TID tid)
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
 
-        call_user_function_ex (EG(function_table), NULL, &callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
+        call_user_function (EG(function_table), NULL, &callback_name, &callback_retval,1,args TSRMLS_CC);
      }
 
 }
@@ -355,7 +355,7 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_confirm(RFC_TID tid)
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
 
-        call_user_function_ex (EG(function_table), NULL, &callback_name, &callback_retval,1,args,0,NULL TSRMLS_CC);
+        call_user_function (EG(function_table), NULL, &callback_name, &callback_retval,1,args TSRMLS_CC);
      }
 
 }
@@ -2207,7 +2207,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
                  ZVAL_STRING(&name, function_name);
                  args[0] = *fce;
 
-                 if ( call_user_function_ex (EG(function_table), NULL, &name, &retval,1,args,0,NULL TSRMLS_CC) == SUCCESS )
+                 if ( call_user_function (EG(function_table), NULL, &name, &retval,1,args TSRMLS_CC) == SUCCESS )
                  {
                     /* if return value is string, raise exception */
                     if (Z_TYPE(retval) == IS_STRING && Z_STRLEN(retval) > 0 )
