@@ -1042,7 +1042,7 @@ void __cal_fce_discover_system_info (CALD_FUNCTION_MODULE *fce, RFC_HANDLE rfc)
    sapversion = CAL_GET_EXPORT_STRUCT (f1,"RFCSI_EXPORT","RFCSAPRL");
    target_codepage = CAL_GET_EXPORT_STRUCT (f1,"RFCSI_EXPORT","RFCCHARTYP");
 
-   strsafecpy (fce->rfcsaprl,sapversion,strlen(sapversion));
+   strsafecpy (fce->rfcsaprl,sapversion,strlen(fce->rfcsaprl));
    /* if target SAP system is >= 6.10 and has default code page 4103 or 4102,
       it's UNICODE system */
    if ( target_codepage[0] == '4' &&
