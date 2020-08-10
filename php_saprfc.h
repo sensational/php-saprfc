@@ -22,6 +22,15 @@
 
 #include "rfccal.h"
 
+#if PHP_VERSION_ID >= 80000
+  #define FREE_ZVAL(arg)
+  #define MAKE_STD_ZVAL(arg)
+
+  #define TSRMLS_DC
+  #define TSRMLS_CC
+  #define TSRMLS_FETCH()
+#endif
+
 extern zend_module_entry saprfc_module_entry;
 #define phpext_saprfc_ptr &saprfc_module_entry
 
