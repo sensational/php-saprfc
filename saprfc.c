@@ -184,8 +184,6 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
     rfc_rc = SAL_GET_NAME (rfc_handle, function_name);
     if (rfc_rc != RFC_OK) return (rfc_rc);
 
-    MAKE_STD_ZVAL(callback_function);
-    MAKE_STD_ZVAL(callback_name);
     if ( SAPRFCG(trfc_dispatcher) == NULL )
     {
         ZVAL_STRING(&callback_name,"__saprfc_callback_dispatch");
@@ -218,7 +216,6 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
               else
               {
                  /* call PHP function */
-                 MAKE_STD_ZVAL(name);
                  ZVAL_STRING(&name,function_name);
                  args[0] = callback_retval;
 
@@ -241,14 +238,12 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
                               sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR());
                        }
                     }
-                    FREE_ZVAL(retval);
                  }
                  else
                  {
                     sprintf(abort_text,"PHP function %s can't be called",function_name);
                     rfc_rc = -1;
                  }
-                 FREE_ZVAL(name);
               }
               CAL_INIT_INTERFACE(function_module);
           }
@@ -263,8 +258,6 @@ static RFC_RC DLL_CALL_BACK_FUNCTION __callback_dispatch (RFC_HANDLE rfc_handle)
        sprintf(abort_text,"The function __saprfc_callback_dispatch() is not implemented");
        rfc_rc = -1;
     }
-    FREE_ZVAL(callback_name);
-    FREE_ZVAL(callback_function);
 
     if ( rfc_rc != RFC_OK )
     {
@@ -287,8 +280,6 @@ static int DLL_CALL_BACK_FUNCTION __callback_tid_check(RFC_TID tid)
     rc = 0;
     if (SAPRFCG(trfc_tid_check) != NULL)
     {
-        MAKE_STD_ZVAL(callback_tid);
-        MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(&callback_name,SAPRFCG(trfc_tid_check));
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
@@ -310,8 +301,6 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_commit(RFC_TID tid)
 
     if (SAPRFCG(trfc_tid_commit) != NULL)
     {
-        MAKE_STD_ZVAL(callback_tid);
-        MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(&callback_name,SAPRFCG(trfc_tid_commit));
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
@@ -330,8 +319,6 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_rollback(RFC_TID tid)
 
     if (SAPRFCG(trfc_tid_rollback) != NULL)
     {
-        MAKE_STD_ZVAL(callback_tid);
-        MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(&callback_name,SAPRFCG(trfc_tid_rollback));
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
@@ -350,8 +337,6 @@ static void DLL_CALL_BACK_FUNCTION __callback_tid_confirm(RFC_TID tid)
 
     if (SAPRFCG(trfc_tid_confirm) != NULL)
     {
-        MAKE_STD_ZVAL(callback_tid);
-        MAKE_STD_ZVAL(callback_name);
         ZVAL_STRING(&callback_name,SAPRFCG(trfc_tid_confirm));
         ZVAL_STRING(&callback_tid,tid);
         args[0] = callback_tid;
@@ -904,7 +889,6 @@ PHP_FUNCTION(saprfc_function_interface)
       i=0;
       while ( iinfo[i].name != NULL )
       {
-         MAKE_STD_ZVAL(param);
          array_init(param);
 
          add_assoc_string (param,"name",iinfo[i].name);
@@ -915,12 +899,10 @@ PHP_FUNCTION(saprfc_function_interface)
            default          : add_assoc_string (param,"type","UNDEF"); break;
          }
          add_assoc_long (param,"optional",iinfo[i].is_optional);
-         MAKE_STD_ZVAL(def);
 
          array_init(def);
          for (j=0; j<iinfo[i].size; j++)
          {
-            MAKE_STD_ZVAL(item);
             array_init(item);
             add_assoc_string(item,"name",iinfo[i].typeinfo[j].name);
             abap_tmp[0]=iinfo[i].typeinfo[j].abap;
@@ -2204,7 +2186,6 @@ PHP_FUNCTION(saprfc_server_dispatch)
               else
               {
                  /* call PHP function */
-                 MAKE_STD_ZVAL(name);
                  ZVAL_STRING(&name, function_name);
                  args[0] = *fce;
 
@@ -2227,14 +2208,12 @@ PHP_FUNCTION(saprfc_server_dispatch)
                               sprintf(abort_text,"Error %s in RfcSendData",CAL_RFC_LAST_ERROR());
                        }
                     }
-                    FREE_ZVAL(retval);
                  }
                  else
                  {
                     sprintf(abort_text,"PHP function %s can't be called",function_name);
                     rfc_rc = -1;
                  }
-                 FREE_ZVAL(name);
               }
               CAL_INIT_INTERFACE(function_module);
           }
