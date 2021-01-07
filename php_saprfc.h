@@ -87,6 +87,11 @@ PHP_FUNCTION(saprfc_function_name);
 PHP_FUNCTION(saprfc_allow_start_program);
 PHP_FUNCTION(saprfc_get_ticket);
 
+#if PHP_VERSION_ID >= 80000
+#include "saprfc_arginfo.h"
+#else
+#include "saprfc_legacy_arginfo.h"
+#endif
 
 /*
       Declare any global variables you may need between the BEGIN
