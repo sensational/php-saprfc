@@ -45,54 +45,12 @@ ZEND_DECLARE_MODULE_GLOBALS(saprfc)
 /* True global resources - no need for thread safety here */
 static int le_rfc, le_function;
 
-/* Every user visible function must have an entry in saprfc_functions[].
-*/
-zend_function_entry saprfc_functions[] = {
-    PHP_FE(saprfc_open,    NULL)
-    PHP_FE(saprfc_function_discover,    NULL)
-    PHP_FE(saprfc_function_define,    NULL)
-    PHP_FE(saprfc_function_interface,    NULL)
-    PHP_FE(saprfc_function_debug_info,    NULL)
-    PHP_FE(saprfc_optional,    NULL)
-    PHP_FE(saprfc_import,    NULL)
-    PHP_FE(saprfc_export,    NULL)
-    PHP_FE(saprfc_table_init,    NULL)
-    PHP_FE(saprfc_table_append,    NULL)
-    PHP_FE(saprfc_table_insert,    NULL)
-    PHP_FE(saprfc_table_modify,    NULL)
-    PHP_FE(saprfc_table_remove,    NULL)
-    PHP_FE(saprfc_table_read,    NULL)
-    PHP_FE(saprfc_table_rows,    NULL)
-    PHP_FE(saprfc_call_and_receive,    NULL)
-    PHP_FE(saprfc_error,    NULL)
-    PHP_FE(saprfc_function_free,    NULL)
-    PHP_FE(saprfc_close,    NULL)
-    PHP_FE(saprfc_set_code_page,    NULL)
-    PHP_FE(saprfc_attributes,    NULL)
-    PHP_FE(saprfc_server_accept,    NULL)
-    PHP_FE(saprfc_server_import,    NULL)
-    PHP_FE(saprfc_server_export,    NULL)
-    PHP_FE(saprfc_server_dispatch,  NULL)
-    PHP_FE(saprfc_trfc_install,  NULL)
-    PHP_FALIAS(saprfc_trfc_dispatch, saprfc_server_dispatch,  NULL)
-    PHP_FE(saprfc_trfc_call,  NULL)
-    PHP_FE(saprfc_trfc_tid,  NULL)
-    PHP_FE(saprfc_set_trace,  NULL)
-    PHP_FE(saprfc_server_register_check,  NULL)
-    PHP_FE(saprfc_server_register_cancel,  NULL)
-    PHP_FE(saprfc_function_name,  NULL)
-    PHP_FE(saprfc_exception,  NULL)
-      PHP_FE(saprfc_allow_start_program, NULL)
-      PHP_FE(saprfc_get_ticket, NULL)
-    {NULL, NULL, NULL}    /* Must be the last line in saprfc_functions[] */
-};
-
 zend_module_entry saprfc_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
 #endif
     "saprfc",
-    saprfc_functions,
+    ext_functions,
     PHP_MINIT(saprfc),
     PHP_MSHUTDOWN(saprfc),
     PHP_RINIT(saprfc),        /* Replace with NULL if there's nothing to do at request start */

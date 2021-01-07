@@ -1,6 +1,9 @@
 <?php
 
-/** @generate-legacy-arginfo */
+/**
+ * @generate-legacy-arginfo
+ * @generate-function-entries
+ */
 
 /** @return resource|int|false */
 function saprfc_open(array $conn, int $timeout = -1) {}
@@ -132,8 +135,9 @@ function saprfc_server_export($fce, string $name, mixed $value): bool {}
 
 /**
  * @param resource $rfc
+ * @alias saprfc_server_dispatch
  */
-function saprfc_server_dispatch($rfc, array $list, int $timeout = 0): int {}
+function saprfc_trfc_dispatch($rfc, array $list, int $timeout = 0): int {}
 
 function saprfc_trfc_install(string $tid_check, string $tid_commit, string $tid_rollback, string $tid_confirm, string $dispatcher): bool {}
 

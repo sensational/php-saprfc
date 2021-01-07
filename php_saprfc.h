@@ -50,43 +50,6 @@ PHP_RINIT_FUNCTION(saprfc);
 PHP_RSHUTDOWN_FUNCTION(saprfc);
 PHP_MINFO_FUNCTION(saprfc);
 
-PHP_FUNCTION(saprfc_open);
-PHP_FUNCTION(saprfc_function_discover);
-PHP_FUNCTION(saprfc_function_define);
-PHP_FUNCTION(saprfc_function_interface);
-PHP_FUNCTION(saprfc_function_debug_info);
-PHP_FUNCTION(saprfc_optional);
-PHP_FUNCTION(saprfc_import);
-PHP_FUNCTION(saprfc_export);
-PHP_FUNCTION(saprfc_table_init);
-PHP_FUNCTION(saprfc_table_append);
-PHP_FUNCTION(saprfc_table_insert);
-PHP_FUNCTION(saprfc_table_modify);
-PHP_FUNCTION(saprfc_table_remove);
-PHP_FUNCTION(saprfc_table_read);
-PHP_FUNCTION(saprfc_table_rows);
-PHP_FUNCTION(saprfc_call_and_receive);
-PHP_FUNCTION(saprfc_exception);
-PHP_FUNCTION(saprfc_error);
-PHP_FUNCTION(saprfc_function_free);
-PHP_FUNCTION(saprfc_close);
-PHP_FUNCTION(saprfc_set_code_page);
-PHP_FUNCTION(saprfc_attributes);
-PHP_FUNCTION(saprfc_server_accept);
-PHP_FUNCTION(saprfc_server_import);
-PHP_FUNCTION(saprfc_server_export);
-PHP_FUNCTION(saprfc_server_dispatch);
-PHP_FUNCTION(saprfc_trfc_install);
-PHP_FUNCTION(saprfc_trfc_dispatch);
-PHP_FUNCTION(saprfc_trfc_call);
-PHP_FUNCTION(saprfc_trfc_tid);
-PHP_FUNCTION(saprfc_set_trace);
-PHP_FUNCTION(saprfc_server_register_check);
-PHP_FUNCTION(saprfc_server_register_cancel);
-PHP_FUNCTION(saprfc_function_name);
-PHP_FUNCTION(saprfc_allow_start_program);
-PHP_FUNCTION(saprfc_get_ticket);
-
 #if PHP_VERSION_ID >= 80000
 #include "saprfc_arginfo.h"
 #else
