@@ -1352,7 +1352,7 @@ PHP_FUNCTION(saprfc_table_insert)
     FCE_RESOURCE *fce_resource;
 
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSaL", &fce, &name, &value, &index) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSal", &fce, &name, &value, &index) == FAILURE) {
         return;
     }
 
@@ -1431,7 +1431,7 @@ PHP_FUNCTION(saprfc_table_modify)
     int len;
     FCE_RESOURCE *fce_resource;
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSaL", &fce, &name, &value, &index) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSal", &fce, &name, &value, &index) == FAILURE) {
         return;
     }
 
@@ -1505,7 +1505,7 @@ PHP_FUNCTION(saprfc_table_remove)
     int type;
     FCE_RESOURCE *fce_resource;
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSL", &fce, &name, &index) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSl", &fce, &name, &index) == FAILURE) {
         return;
     }
 
@@ -1544,7 +1544,7 @@ PHP_FUNCTION(saprfc_table_read)
     FCE_RESOURCE *fce_resource;
     CALD_INTERFACE_INFO *iinfo;
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSL", &fce, &name, &index) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rSl", &fce, &name, &index) == FAILURE) {
         return;
     }
 
@@ -2089,7 +2089,7 @@ PHP_FUNCTION(saprfc_server_dispatch)
     num = 0;
     rfc_rc = RFC_OK;
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rS|L", &rfc, &list, &timeout_val) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "rS|l", &rfc, &list, &timeout_val) == FAILURE) {
         return;
     }
 
